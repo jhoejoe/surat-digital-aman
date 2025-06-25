@@ -9,7 +9,98 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      documents: {
+        Row: {
+          created_at: string
+          file_hash: string
+          file_name: string
+          file_size: number
+          id: string
+          message: string | null
+          qr_code: string
+          recipient: string
+          status: string
+          subject: string
+          ticket_number: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          file_hash: string
+          file_name: string
+          file_size: number
+          id?: string
+          message?: string | null
+          qr_code: string
+          recipient: string
+          status?: string
+          subject: string
+          ticket_number: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          file_hash?: string
+          file_name?: string
+          file_size?: number
+          id?: string
+          message?: string | null
+          qr_code?: string
+          recipient?: string
+          status?: string
+          subject?: string
+          ticket_number?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      verification_results: {
+        Row: {
+          certificate_validity: string
+          document_id: string | null
+          document_integrity: string
+          id: string
+          signature_count: number
+          signature_location: string | null
+          signature_time: string | null
+          signer_name: string | null
+          valid_until: string | null
+          verification_completed_at: string
+        }
+        Insert: {
+          certificate_validity: string
+          document_id?: string | null
+          document_integrity: string
+          id?: string
+          signature_count?: number
+          signature_location?: string | null
+          signature_time?: string | null
+          signer_name?: string | null
+          valid_until?: string | null
+          verification_completed_at?: string
+        }
+        Update: {
+          certificate_validity?: string
+          document_id?: string | null
+          document_integrity?: string
+          id?: string
+          signature_count?: number
+          signature_location?: string | null
+          signature_time?: string | null
+          signer_name?: string | null
+          valid_until?: string | null
+          verification_completed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "verification_results_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

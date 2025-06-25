@@ -8,16 +8,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Upload, ArrowLeft, Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { useCreateDocument } from "@/hooks/useDocuments";
+import { generateTicketNumber, generateQRCode, calculateFileHash } from "@/utils/documentUtils";
 
 const KirimSurat = () => {
   const navigate = useNavigate();
+  const createDocument = useCreateDocument();
   const [formData, setFormData] = useState({
     subject: "",
     recipient: "",
     message: "",
     file: null as File | null
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -30,6 +32,14 @@ const KirimSurat = () => {
         toast({
           title: "File Tidak Valid",
           description: "Hanya file PDF yang diizinkan",
+          variant: "destructive"
+        });
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File Terlalu Besar",
+          description: "Ukuran file maksimal 10MB",
           variant: "destructive"
         });
         return;
@@ -50,17 +60,51 @@ const KirimSurat = () => {
       return;
     }
 
-    setIsSubmitting(true);
-    
-    // Simulate submission
-    setTimeout(() => {
+    try {
+      console.log("Starting document submission...");
+      
+      // Calculate file hash
+      const fileHash = await calculateFileHash(formData.file);
+      console.log("File hash calculated:", fileHash);
+      
+      // Generate ticket number and QR code
+      const ticketNumber = generateTicketNumber();
+      const qrCode = generateQRCode();
+      
+      console.log("Generated ticket number:", ticketNumber);
+      console.log("Generated QR code:", qrCode);
+      
+      // Create document record
+      const documentData = {
+        ticket_number: ticketNumber,
+        file_name: formData.file.name,
+        file_size: formData.file.size,
+        file_hash: fileHash,
+        subject: formData.subject,
+        recipient: formData.recipient,
+        message: formData.message || null,
+        qr_code: qrCode,
+        status: "PENDING" as const,
+      };
+      
+      console.log("Document data:", documentData);
+      
+      await createDocument.mutateAsync(documentData);
+      
       toast({
         title: "Surat Berhasil Dikirim",
-        description: "Dokumen Anda telah berhasil dikirim untuk diproses",
+        description: `Dokumen Anda telah berhasil dikirim dengan nomor tiket: ${ticketNumber}`,
       });
-      setIsSubmitting(false);
+      
       navigate('/cek-progress');
-    }, 2000);
+    } catch (error) {
+      console.error("Error submitting document:", error);
+      toast({
+        title: "Gagal Mengirim Dokumen",
+        description: "Terjadi kesalahan saat mengirim dokumen. Silakan coba lagi.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -163,11 +207,11 @@ const KirimSurat = () => {
 
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={createDocument.isPending}
                 className="w-full"
                 size="lg"
               >
-                {isSubmitting ? (
+                {createDocument.isPending ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     Mengirim Dokumen...

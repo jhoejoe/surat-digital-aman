@@ -7,6 +7,9 @@ import { Label } from "@/components/ui/label";
 import { Upload, FileText, CheckCircle, X, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
+import { useCreateDocument, useUpdateDocumentStatus } from "@/hooks/useDocuments";
+import { useCreateVerificationResult } from "@/hooks/useVerificationResults";
+import { generateTicketNumber, generateQRCode, calculateFileHash, simulateDocumentVerification } from "@/utils/documentUtils";
 
 interface VerificationResult {
   fileName: string;
@@ -23,6 +26,10 @@ interface VerificationResult {
 
 const CekKeaslian = () => {
   const navigate = useNavigate();
+  const createDocument = useCreateDocument();
+  const updateDocumentStatus = useUpdateDocumentStatus();
+  const createVerificationResult = useCreateVerificationResult();
+  
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<VerificationResult | null>(null);
@@ -56,30 +63,95 @@ const CekKeaslian = () => {
     
     setIsVerifying(true);
     
-    // Simulate verification process
-    setTimeout(() => {
-      // Mock verification result
-      const mockResult: VerificationResult = {
-        fileName: selectedFile.name,
-        signatureCount: 2,
-        certificateValidity: "VALID",
-        signerName: "John Doe, Jane Smith",
-        signatureTime: new Date().toLocaleString('id-ID'),
-        validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID'),
-        documentIntegrity: "ASLI",
-        signatureLocation: "Jakarta, Indonesia",
-        qrCode: "QR" + Math.random().toString(36).substr(2, 8).toUpperCase(),
-        ticketNumber: "TKT" + Math.random().toString(36).substr(2, 10).toUpperCase()
+    try {
+      console.log("Starting verification process...");
+      
+      // Calculate file hash
+      const fileHash = await calculateFileHash(selectedFile);
+      console.log("File hash calculated:", fileHash);
+      
+      // Generate ticket number and QR code
+      const ticketNumber = generateTicketNumber();
+      const qrCode = generateQRCode();
+      
+      console.log("Generated ticket number:", ticketNumber);
+      console.log("Generated QR code:", qrCode);
+      
+      // Create document record for verification
+      const documentData = {
+        ticket_number: ticketNumber,
+        file_name: selectedFile.name,
+        file_size: selectedFile.size,
+        file_hash: fileHash,
+        subject: "Verifikasi Keaslian Dokumen",
+        recipient: "Sistem Verifikasi",
+        message: null,
+        qr_code: qrCode,
+        status: "PROCESSING" as const,
       };
       
-      setVerificationResult(mockResult);
+      const document = await createDocument.mutateAsync(documentData);
+      console.log("Document created:", document);
+      
+      // Simulate verification process
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Simulate document verification
+      const mockVerification = simulateDocumentVerification(selectedFile.name);
+      console.log("Mock verification result:", mockVerification);
+      
+      // Create verification result record
+      const verificationData = {
+        document_id: document.id,
+        signature_count: mockVerification.signatureCount,
+        certificate_validity: mockVerification.certificateValidity,
+        signer_name: mockVerification.signerName,
+        signature_time: new Date().toISOString(),
+        valid_until: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
+        document_integrity: mockVerification.documentIntegrity,
+        signature_location: mockVerification.signatureLocation,
+      };
+      
+      await createVerificationResult.mutateAsync(verificationData);
+      console.log("Verification result created");
+      
+      // Update document status to completed
+      await updateDocumentStatus.mutateAsync({
+        id: document.id,
+        status: "COMPLETED"
+      });
+      console.log("Document status updated to COMPLETED");
+      
+      // Set verification result for display
+      const result: VerificationResult = {
+        fileName: selectedFile.name,
+        signatureCount: mockVerification.signatureCount,
+        certificateValidity: mockVerification.certificateValidity,
+        signerName: mockVerification.signerName,
+        signatureTime: new Date().toLocaleString('id-ID'),
+        validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID'),
+        documentIntegrity: mockVerification.documentIntegrity,
+        signatureLocation: mockVerification.signatureLocation || undefined,
+        qrCode: qrCode,
+        ticketNumber: ticketNumber
+      };
+      
+      setVerificationResult(result);
       setIsVerifying(false);
       
       toast({
         title: "Verifikasi Berhasil",
-        description: "Dokumen telah diverifikasi",
+        description: "Dokumen telah diverifikasi dan disimpan ke database",
       });
-    }, 3000);
+    } catch (error) {
+      console.error("Error during verification:", error);
+      setIsVerifying(false);
+      toast({
+        title: "Verifikasi Gagal",
+        description: "Terjadi kesalahan saat memverifikasi dokumen. Silakan coba lagi.",
+        variant: "destructive"
+      });
+    }
   };
 
   const resetVerification = () => {

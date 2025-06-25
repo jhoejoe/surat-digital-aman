@@ -7,64 +7,30 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Search, ArrowLeft, FileText, Clock, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useDocuments, useDocument } from "@/hooks/useDocuments";
+import type { Tables } from "@/integrations/supabase/types";
 
-interface DocumentStatus {
-  ticketNumber: string;
-  fileName: string;
-  submittedDate: string;
-  status: "PENDING" | "PROCESSING" | "COMPLETED" | "FAILED";
-  qrCode: string;
-  verificationResult?: {
-    certificateValidity: "VALID" | "INVALID";
-    documentIntegrity: "ASLI" | "SUDAH DIMODIFIKASI";
-  };
+type Document = Tables<"documents">;
+type VerificationResult = Tables<"verification_results">;
+
+interface DocumentWithVerification extends Document {
+  verification_results: VerificationResult[];
 }
 
 const CekProgress = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResult, setSearchResult] = useState<DocumentStatus | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-
-  // Mock data
-  const mockDocuments: DocumentStatus[] = [
-    {
-      ticketNumber: "TKT2024001",
-      fileName: "Surat_Keputusan.pdf",
-      submittedDate: "2024-01-15 14:30:00",
-      status: "COMPLETED",
-      qrCode: "QR001ABC",
-      verificationResult: {
-        certificateValidity: "VALID",
-        documentIntegrity: "ASLI"
-      }
-    },
-    {
-      ticketNumber: "TKT2024002",
-      fileName: "Kontrak_Kerja.pdf",
-      submittedDate: "2024-01-16 09:15:00",
-      status: "PROCESSING",
-      qrCode: "QR002DEF"
-    }
-  ];
+  const [searchedTicket, setSearchedTicket] = useState("");
+  
+  const { data: recentDocuments, isLoading: isLoadingRecent } = useDocuments();
+  const { data: searchResult, isLoading: isSearching, error: searchError } = useDocument(searchedTicket);
 
   const handleSearch = () => {
     if (!searchQuery.trim()) return;
-    
-    setIsSearching(true);
-    
-    setTimeout(() => {
-      const found = mockDocuments.find(
-        doc => doc.ticketNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-               doc.qrCode.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-      
-      setSearchResult(found || null);
-      setIsSearching(false);
-    }, 1000);
+    setSearchedTicket(searchQuery.trim());
   };
 
-  const getStatusBadge = (status: DocumentStatus['status']) => {
+  const getStatusBadge = (status: Document['status']) => {
     const statusConfig = {
       PENDING: { label: "Menunggu", color: "bg-yellow-500" },
       PROCESSING: { label: "Diproses", color: "bg-blue-500" },
@@ -72,7 +38,7 @@ const CekProgress = () => {
       FAILED: { label: "Gagal", color: "bg-red-500" }
     };
     
-    const config = statusConfig[status];
+    const config = statusConfig[status as keyof typeof statusConfig];
     return (
       <Badge className={`${config.color} text-white`}>
         {config.label}
@@ -80,7 +46,7 @@ const CekProgress = () => {
     );
   };
 
-  const getStatusIcon = (status: DocumentStatus['status']) => {
+  const getStatusIcon = (status: Document['status']) => {
     switch (status) {
       case "PENDING":
         return <Clock className="w-5 h-5 text-yellow-500" />;
@@ -93,6 +59,10 @@ const CekProgress = () => {
       default:
         return <FileText className="w-5 h-5 text-gray-500" />;
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleString('id-ID');
   };
 
   return (
@@ -172,48 +142,58 @@ const CekProgress = () => {
                     {getStatusIcon(searchResult.status)}
                     <div>
                       <Label className="text-sm font-medium text-gray-500">Nama File</Label>
-                      <p className="text-lg font-medium">{searchResult.fileName}</p>
+                      <p className="text-lg font-medium">{searchResult.file_name}</p>
                     </div>
                   </div>
                   
                   <div>
                     <Label className="text-sm font-medium text-gray-500">Nomor Tiket</Label>
-                    <p className="text-lg font-mono font-medium">{searchResult.ticketNumber}</p>
+                    <p className="text-lg font-mono font-medium">{searchResult.ticket_number}</p>
                   </div>
                   
                   <div>
                     <Label className="text-sm font-medium text-gray-500">Tanggal Submit</Label>
-                    <p className="text-lg font-medium">{searchResult.submittedDate}</p>
+                    <p className="text-lg font-medium">{formatDate(searchResult.created_at)}</p>
                   </div>
                 </div>
                 
                 <div className="space-y-4">
                   <div>
                     <Label className="text-sm font-medium text-gray-500">QR Code</Label>
-                    <p className="text-lg font-mono font-medium">{searchResult.qrCode}</p>
+                    <p className="text-lg font-mono font-medium">{searchResult.qr_code}</p>
                   </div>
                   
-                  {searchResult.verificationResult && (
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Subjek</Label>
+                    <p className="text-lg font-medium">{searchResult.subject}</p>
+                  </div>
+                  
+                  <div>
+                    <Label className="text-sm font-medium text-gray-500">Penerima</Label>
+                    <p className="text-lg font-medium">{searchResult.recipient}</p>
+                  </div>
+                  
+                  {searchResult.verification_results && searchResult.verification_results.length > 0 && (
                     <>
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Validitas Sertifikat</Label>
                         <p className={`text-lg font-medium ${
-                          searchResult.verificationResult.certificateValidity === 'VALID' 
+                          searchResult.verification_results[0].certificate_validity === 'VALID' 
                             ? 'text-green-600' 
                             : 'text-red-600'
                         }`}>
-                          {searchResult.verificationResult.certificateValidity}
+                          {searchResult.verification_results[0].certificate_validity}
                         </p>
                       </div>
                       
                       <div>
                         <Label className="text-sm font-medium text-gray-500">Integritas Dokumen</Label>
                         <p className={`text-lg font-medium ${
-                          searchResult.verificationResult.documentIntegrity === 'ASLI' 
+                          searchResult.verification_results[0].document_integrity === 'ASLI' 
                             ? 'text-green-600' 
                             : 'text-red-600'
                         }`}>
-                          {searchResult.verificationResult.documentIntegrity}
+                          {searchResult.verification_results[0].document_integrity}
                         </p>
                       </div>
                     </>
@@ -224,8 +204,8 @@ const CekProgress = () => {
           </Card>
         )}
 
-        {searchQuery && !searchResult && !isSearching && (
-          <Card>
+        {searchQuery && searchError && !isSearching && (
+          <Card className="mb-8">
             <CardContent className="text-center py-8">
               <p className="text-gray-500">Dokumen tidak ditemukan. Pastikan nomor tiket atau QR code yang Anda masukkan benar.</p>
             </CardContent>
@@ -241,23 +221,34 @@ const CekProgress = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {mockDocuments.map((doc, index) => (
-                <div key={index} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center space-x-4">
-                    {getStatusIcon(doc.status)}
-                    <div>
-                      <p className="font-medium">{doc.fileName}</p>
-                      <p className="text-sm text-gray-500">{doc.ticketNumber}</p>
+            {isLoadingRecent ? (
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+                <p className="mt-2 text-gray-500">Memuat dokumen...</p>
+              </div>
+            ) : recentDocuments && recentDocuments.length > 0 ? (
+              <div className="space-y-4">
+                {recentDocuments.slice(0, 10).map((doc) => (
+                  <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+                    <div className="flex items-center space-x-4">
+                      {getStatusIcon(doc.status)}
+                      <div>
+                        <p className="font-medium">{doc.file_name}</p>
+                        <p className="text-sm text-gray-500">{doc.ticket_number}</p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      {getStatusBadge(doc.status)}
+                      <p className="text-sm text-gray-500 mt-1">{formatDate(doc.created_at)}</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    {getStatusBadge(doc.status)}
-                    <p className="text-sm text-gray-500 mt-1">{doc.submittedDate}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8">
+                <p className="text-gray-500">Belum ada dokumen yang disubmit.</p>
+              </div>
+            )}
           </CardContent>
         </Card>
       </main>
