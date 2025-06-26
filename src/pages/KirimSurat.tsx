@@ -75,15 +75,12 @@ const KirimSurat = () => {
         file_name: selectedFile.name,
         file_size: selectedFile.size,
         file_hash: fileHash,
-        sender_name: formData.senderName,
-        sender_email: formData.senderEmail,
-        receiver_name: formData.receiverName,
-        receiver_email: formData.receiverEmail,
+        recipient: `${formData.receiverName} (${formData.receiverEmail})`,
         subject: formData.subject,
         message: formData.message,
         ticket_number: ticketNumber,
         qr_code: qrCode,
-        status: 'pending' as const
+        status: 'PENDING' as const
       };
 
       await createDocument.mutateAsync(documentData);
