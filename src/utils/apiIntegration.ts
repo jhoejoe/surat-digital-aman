@@ -1,196 +1,235 @@
 
-// Utility functions for API integrations
-
-interface IntegrationConfig {
+export interface ApiIntegrationConfig {
   name: string;
   endpoint: string;
   apiKey: string;
-  headers?: Record<string, string>;
+  isActive: boolean;
+  description?: string;
+}
+
+export interface WebhookPayload {
+  event: string;
+  data: any;
+  timestamp: string;
+  signature?: string;
+}
+
+export interface ApiResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+  statusCode?: number;
 }
 
 export class ApiIntegrationService {
-  private config: IntegrationConfig;
+  public config: ApiIntegrationConfig;
 
-  constructor(config: IntegrationConfig) {
+  constructor(config: ApiIntegrationConfig) {
     this.config = config;
   }
 
-  private getHeaders(): Record<string, string> {
-    return {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${this.config.apiKey}`,
-      ...this.config.headers
-    };
-  }
+  // Test connection to the API
+  async testConnection(): Promise<ApiResponse> {
+    if (!this.config.isActive) {
+      return {
+        success: false,
+        error: "Integration is not active"
+      };
+    }
 
-  async testConnection(): Promise<boolean> {
     try {
       const response = await fetch(`${this.config.endpoint}/health`, {
         method: 'GET',
-        headers: this.getHeaders()
+        headers: {
+          'Authorization': `Bearer ${this.config.apiKey}`,
+          'Content-Type': 'application/json'
+        }
       });
-      
-      return response.ok;
+
+      if (response.ok) {
+        return {
+          success: true,
+          data: await response.json(),
+          statusCode: response.status
+        };
+      } else {
+        return {
+          success: false,
+          error: `HTTP ${response.status}: ${response.statusText}`,
+          statusCode: response.status
+        };
+      }
     } catch (error) {
-      console.error(`Connection test failed for ${this.config.name}:`, error);
-      return false;
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      };
     }
   }
 
-  async sendDocument(documentData: any): Promise<any> {
+  // Send document for verification
+  async verifyDocument(documentData: {
+    fileName: string;
+    fileHash: string;
+    recipientName: string;
+    subject: string;
+  }): Promise<ApiResponse> {
+    if (!this.config.isActive) {
+      return {
+        success: false,
+        error: "Integration is not active"
+      };
+    }
+
     try {
-      const response = await fetch(`${this.config.endpoint}/documents`, {
+      const response = await fetch(`${this.config.endpoint}/verify`, {
         method: 'POST',
-        headers: this.getHeaders(),
+        headers: {
+          'Authorization': `Bearer ${this.config.apiKey}`,
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify(documentData)
       });
 
-      if (!response.ok) {
-        throw new Error(`API request failed: ${response.statusText}`);
-      }
+      const responseData = await response.json();
 
-      return await response.json();
+      if (response.ok) {
+        return {
+          success: true,
+          data: responseData,
+          statusCode: response.status
+        };
+      } else {
+        return {
+          success: false,
+          error: responseData.message || `HTTP ${response.status}`,
+          statusCode: response.status
+        };
+      }
     } catch (error) {
-      console.error(`Document send failed for ${this.config.name}:`, error);
-      throw error;
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error occurred'
+      };
     }
   }
 
-  async verifySignature(documentId: string): Promise<any> {
+  // Handle webhook from external service
+  static async handleWebhook(payload: WebhookPayload): Promise<ApiResponse> {
     try {
-      const response = await fetch(`${this.config.endpoint}/verify/${documentId}`, {
-        method: 'GET',
-        headers: this.getHeaders()
-      });
-
-      if (!response.ok) {
-        throw new Error(`Verification request failed: ${response.statusText}`);
+      console.log('Received webhook:', payload);
+      
+      // Validate webhook signature if provided
+      if (payload.signature) {
+        // In production, validate the signature here
+        // For now, we'll just log it
+        console.log('Webhook signature:', payload.signature);
       }
 
-      return await response.json();
+      // Process different event types
+      switch (payload.event) {
+        case 'document.verified':
+          return this.handleDocumentVerified(payload.data);
+        case 'document.rejected':
+          return this.handleDocumentRejected(payload.data);
+        default:
+          console.log('Unknown webhook event:', payload.event);
+          return {
+            success: true,
+            data: { message: 'Event received but not processed' }
+          };
+      }
     } catch (error) {
-      console.error(`Signature verification failed for ${this.config.name}:`, error);
-      throw error;
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Webhook processing failed'
+      };
     }
   }
 
-  async getSignatureStatus(documentId: string): Promise<any> {
-    try {
-      const response = await fetch(`${this.config.endpoint}/status/${documentId}`, {
-        method: 'GET',
-        headers: this.getHeaders()
-      });
+  private static async handleDocumentVerified(data: any): Promise<ApiResponse> {
+    // Update document status in database
+    console.log('Document verified:', data);
+    return {
+      success: true,
+      data: { message: 'Document verification processed' }
+    };
+  }
 
-      if (!response.ok) {
-        throw new Error(`Status request failed: ${response.statusText}`);
-      }
+  private static async handleDocumentRejected(data: any): Promise<ApiResponse> {
+    // Update document status in database
+    console.log('Document rejected:', data);
+    return {
+      success: true,
+      data: { message: 'Document rejection processed' }
+    };
+  }
 
-      return await response.json();
-    } catch (error) {
-      console.error(`Status check failed for ${this.config.name}:`, error);
-      throw error;
+  // Update integration configuration
+  updateConfig(newConfig: Partial<ApiIntegrationConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+  }
+
+  // Get current status
+  getStatus(): 'connected' | 'disconnected' | 'error' {
+    if (!this.config.isActive) {
+      return 'disconnected';
     }
+    
+    // In a real implementation, you might check the last successful connection
+    return 'connected';
   }
 }
 
-// Privy.id integration specific functions
-export class PrivyIntegration extends ApiIntegrationService {
+// Privy Integration Service
+export class PrivyIntegrationService extends ApiIntegrationService {
   constructor(apiKey: string) {
     super({
       name: 'Privy',
       endpoint: 'https://api.privy.id/v1',
       apiKey,
-      headers: {
-        'X-API-Version': '1.0'
-      }
+      isActive: true,
+      description: 'Privy digital signature service'
     });
   }
 
-  async createSignatureRequest(documentData: {
-    file: File;
-    signers: Array<{ email: string; name: string }>;
-    subject: string;
-    message?: string;
-  }): Promise<any> {
-    const formData = new FormData();
-    formData.append('file', documentData.file);
-    formData.append('signers', JSON.stringify(documentData.signers));
-    formData.append('subject', documentData.subject);
-    if (documentData.message) {
-      formData.append('message', documentData.message);
-    }
-
+  async signDocument(documentId: string, signerEmail: string): Promise<ApiResponse> {
     try {
-      const response = await fetch(`${this.config.endpoint}/signature-requests`, {
+      const response = await fetch(`${this.config.endpoint}/documents/${documentId}/sign`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${this.config.apiKey}`,
-          // Don't set Content-Type for FormData, browser will set it automatically
+          'Content-Type': 'application/json'
         },
-        body: formData
+        body: JSON.stringify({
+          signer_email: signerEmail,
+          callback_url: `${window.location.origin}/api/webhooks/privy`
+        })
       });
 
-      if (!response.ok) {
-        throw new Error(`Privy signature request failed: ${response.statusText}`);
-      }
-
-      return await response.json();
+      return {
+        success: response.ok,
+        data: await response.json(),
+        statusCode: response.status
+      };
     } catch (error) {
-      console.error('Privy signature request failed:', error);
-      throw error;
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Signing request failed'
+      };
     }
   }
 }
 
-// Factory function to create appropriate integration service
-export function createIntegrationService(type: string, config: any): ApiIntegrationService {
-  switch (type.toLowerCase()) {
+// Factory function to create integration services
+export function createIntegrationService(
+  type: 'generic' | 'privy',
+  config: ApiIntegrationConfig
+): ApiIntegrationService {
+  switch (type) {
     case 'privy':
-      return new PrivyIntegration(config.apiKey);
+      return new PrivyIntegrationService(config.apiKey);
     default:
       return new ApiIntegrationService(config);
-  }
-}
-
-// Webhook handler utilities
-export async function handleWebhook(webhookData: any, source: string) {
-  console.log(`Received webhook from ${source}:`, webhookData);
-  
-  // Process webhook based on source
-  switch (source) {
-    case 'privy':
-      return handlePrivyWebhook(webhookData);
-    default:
-      console.log('Unknown webhook source:', source);
-      return { success: false, error: 'Unknown webhook source' };
-  }
-}
-
-async function handlePrivyWebhook(data: any) {
-  try {
-    // Process Privy webhook events
-    const { event_type, signature_request } = data;
-    
-    switch (event_type) {
-      case 'signature_request_signed':
-        // Update document status to signed
-        console.log('Document signed:', signature_request.id);
-        break;
-      case 'signature_request_completed':
-        // Update document status to completed
-        console.log('Signature process completed:', signature_request.id);
-        break;
-      case 'signature_request_declined':
-        // Update document status to declined
-        console.log('Signature declined:', signature_request.id);
-        break;
-      default:
-        console.log('Unknown Privy event:', event_type);
-    }
-    
-    return { success: true };
-  } catch (error) {
-    console.error('Error processing Privy webhook:', error);
-    return { success: false, error: error.message };
   }
 }
