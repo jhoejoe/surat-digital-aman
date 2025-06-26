@@ -6,7 +6,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Users, FileText, Settings } from "lucide-react";
+import { ArrowLeft, Users, FileText, BarChart } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useDocuments, useUpdateDocumentStatus } from "@/hooks/useDocuments";
@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import AdminAnalytics from "@/components/AdminAnalytics";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -109,12 +110,16 @@ const AdminDashboard = () => {
             Dashboard Administrator
           </h1>
           <p className="text-gray-600">
-            Kelola dokumen dan pengguna sistem
+            Kelola dokumen, pengguna, dan analisa sistem
           </p>
         </div>
 
-        <Tabs defaultValue="documents" className="space-y-6">
+        <Tabs defaultValue="analytics" className="space-y-6">
           <TabsList>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <BarChart className="w-4 h-4" />
+              Analisa
+            </TabsTrigger>
             <TabsTrigger value="documents" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Dokumen
@@ -124,6 +129,10 @@ const AdminDashboard = () => {
               Pengguna
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="analytics">
+            <AdminAnalytics />
+          </TabsContent>
 
           <TabsContent value="documents">
             <Card>
