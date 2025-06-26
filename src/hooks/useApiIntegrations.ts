@@ -25,7 +25,7 @@ export const useApiIntegrations = () => {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as ApiIntegration[];
     },
   });
 };
@@ -45,7 +45,7 @@ export const useCreateApiIntegration = () => {
         .single();
       
       if (error) throw error;
-      return data;
+      return data as ApiIntegration;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["api_integrations"] });
@@ -69,7 +69,7 @@ export const useUpdateApiIntegration = () => {
         .single();
       
       if (error) throw error;
-      return data;
+      return data as ApiIntegration;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["api_integrations"] });

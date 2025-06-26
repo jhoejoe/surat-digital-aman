@@ -28,7 +28,7 @@ export const useAuditLogs = () => {
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data as AuditLog[];
     },
   });
 };
@@ -43,7 +43,7 @@ export const useCreateAuditLog = () => {
         .single();
       
       if (error) throw error;
-      return data;
+      return data as AuditLog;
     },
   });
 };

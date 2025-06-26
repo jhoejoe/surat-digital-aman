@@ -9,53 +9,26 @@ import { Switch } from "@/components/ui/switch";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus, Edit, Trash2, Key, Globe, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-interface ApiIntegration {
-  id: string;
-  name: string;
-  endpoint: string;
-  apiKey: string;
-  isActive: boolean;
-  lastSync: string;
-  status: "connected" | "disconnected" | "error";
-  description?: string;
-}
+import { useApiIntegrations, useCreateApiIntegration, useUpdateApiIntegration, useDeleteApiIntegration } from "@/hooks/useApiIntegrations";
+import { logActivity } from "@/hooks/useAuditTrail";
 
 const ApiIntegrations = () => {
   const { toast } = useToast();
-  const [integrations, setIntegrations] = useState<ApiIntegration[]>([
-    {
-      id: "1",
-      name: "Privy Integration",
-      endpoint: "https://api.privy.id/v1",
-      apiKey: "pk_***************",
-      isActive: true,
-      lastSync: "2025-06-26T10:30:00Z",
-      status: "connected",
-      description: "Digital signature verification service"
-    },
-    {
-      id: "2", 
-      name: "Webhook Notifikasi",
-      endpoint: "https://your-app.com/webhook",
-      apiKey: "wh_***************",
-      isActive: false,
-      lastSync: "2025-06-25T15:20:00Z",
-      status: "disconnected",
-      description: "Real-time notification system"
-    }
-  ]);
+  const { data: integrations = [], isLoading } = useApiIntegrations();
+  const createIntegration = useCreateApiIntegration();
+  const updateIntegration = useUpdateApiIntegration();
+  const deleteIntegration = useDeleteApiIntegration();
 
   const [showAddForm, setShowAddForm] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     endpoint: "",
-    apiKey: "",
+    api_key: "",
     description: ""
   });
 
-  const handleAddIntegration = () => {
-    if (!formData.name || !formData.endpoint || !formData.apiKey) {
+  const handleAddIntegration = async () => {
+    if (!formData.name || !formData.endpoint || !formData.api_key) {
       toast({
         title: "Error",
         description: "Semua field wajib diisi",
@@ -64,69 +37,143 @@ const ApiIntegrations = () => {
       return;
     }
 
-    const newIntegration: ApiIntegration = {
-      id: Date.now().toString(),
-      name: formData.name,
-      endpoint: formData.endpoint,
-      apiKey: formData.apiKey,
-      isActive: true,
-      lastSync: new Date().toISOString(),
-      status: "connected",
-      description: formData.description
-    };
-
-    setIntegrations([...integrations, newIntegration]);
-    setFormData({ name: "", endpoint: "", apiKey: "", description: "" });
-    setShowAddForm(false);
-
-    toast({
-      title: "Berhasil",
-      description: "API Integration berhasil ditambahkan"
-    });
-  };
-
-  const toggleIntegration = (id: string) => {
-    setIntegrations(integrations.map(integration =>
-      integration.id === id
-        ? { 
-            ...integration, 
-            isActive: !integration.isActive,
-            status: !integration.isActive ? "connected" : "disconnected"
-          }
-        : integration
-    ));
-  };
-
-  const testConnection = (id: string) => {
-    const integration = integrations.find(i => i.id === id);
-    if (integration) {
-      toast({
-        title: "Testing Connection",
-        description: `Menguji koneksi ke ${integration.name}...`
+    try {
+      await createIntegration.mutateAsync({
+        name: formData.name,
+        endpoint: formData.endpoint,
+        api_key: formData.api_key,
+        description: formData.description,
+        is_active: true,
+        status: "connected",
+        last_sync: new Date().toISOString()
       });
 
+      // Log the activity
+      await logActivity(
+        "CREATE_API_INTEGRATION",
+        "API_INTEGRATION",
+        formData.name,
+        `API Integration '${formData.name}' berhasil ditambahkan`
+      );
+
+      setFormData({ name: "", endpoint: "", api_key: "", description: "" });
+      setShowAddForm(false);
+
+      toast({
+        title: "Berhasil",
+        description: "API Integration berhasil ditambahkan"
+      });
+    } catch (error) {
+      console.error("Error creating integration:", error);
+      toast({
+        title: "Error",
+        description: "Gagal menambahkan API Integration",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const toggleIntegration = async (id: string, currentStatus: boolean) => {
+    try {
+      const integration = integrations.find(i => i.id === id);
+      if (!integration) return;
+
+      await updateIntegration.mutateAsync({
+        id,
+        is_active: !currentStatus,
+        status: !currentStatus ? "connected" : "disconnected"
+      });
+
+      // Log the activity
+      await logActivity(
+        "TOGGLE_API_INTEGRATION",
+        "API_INTEGRATION",
+        id,
+        `API Integration '${integration.name}' ${!currentStatus ? 'diaktifkan' : 'dinonaktifkan'}`
+      );
+
+      toast({
+        title: "Berhasil",
+        description: `API Integration ${!currentStatus ? 'diaktifkan' : 'dinonaktifkan'}`
+      });
+    } catch (error) {
+      console.error("Error toggling integration:", error);
+      toast({
+        title: "Error",
+        description: "Gagal mengubah status integration",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const testConnection = async (id: string) => {
+    const integration = integrations.find(i => i.id === id);
+    if (!integration) return;
+
+    toast({
+      title: "Testing Connection",
+      description: `Menguji koneksi ke ${integration.name}...`
+    });
+
+    try {
       // Simulate API test
-      setTimeout(() => {
-        setIntegrations(integrations.map(i =>
-          i.id === id
-            ? { ...i, status: "connected", lastSync: new Date().toISOString() }
-            : i
-        ));
+      setTimeout(async () => {
+        await updateIntegration.mutateAsync({
+          id,
+          status: "connected",
+          last_sync: new Date().toISOString()
+        });
+
+        // Log the activity
+        await logActivity(
+          "TEST_API_CONNECTION",
+          "API_INTEGRATION",
+          id,
+          `Test koneksi API '${integration.name}' berhasil`
+        );
         
         toast({
           title: "Koneksi Berhasil",
           description: `${integration.name} terhubung dengan baik`
         });
       }, 2000);
+    } catch (error) {
+      console.error("Error testing connection:", error);
+      toast({
+        title: "Test Gagal",
+        description: "Gagal menguji koneksi",
+        variant: "destructive"
+      });
     }
   };
 
-  const deleteIntegration = (id: string) => {
-    setIntegrations(integrations.filter(i => i.id !== id));
-    toast({
-      title: "Berhasil",
-      description: "API Integration berhasil dihapus"
-    });
+  const handleDeleteIntegration = async (id: string) => {
+    try {
+      const integration = integrations.find(i => i.id === id);
+      if (!integration) return;
+
+      await deleteIntegration.mutateAsync(id);
+
+      // Log the activity
+      await logActivity(
+        "DELETE_API_INTEGRATION",
+        "API_INTEGRATION",
+        id,
+        `API Integration '${integration.name}' berhasil dihapus`
+      );
+
+      toast({
+        title: "Berhasil",
+        description: "API Integration berhasil dihapus"
+      });
+    } catch (error) {
+      console.error("Error deleting integration:", error);
+      toast({
+        title: "Error",
+        description: "Gagal menghapus API Integration",
+        variant: "destructive"
+      });
+    }
   };
 
   const getStatusBadge = (status: string) => {
@@ -141,6 +188,10 @@ const ApiIntegrations = () => {
         return <Badge variant="outline">Unknown</Badge>;
     }
   };
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -187,8 +238,8 @@ const ApiIntegrations = () => {
               <Input
                 id="apiKey"
                 type="password"
-                value={formData.apiKey}
-                onChange={(e) => setFormData({...formData, apiKey: e.target.value})}
+                value={formData.api_key}
+                onChange={(e) => setFormData({...formData, api_key: e.target.value})}
                 placeholder="Masukkan API key"
               />
             </div>
@@ -202,7 +253,12 @@ const ApiIntegrations = () => {
               />
             </div>
             <div className="flex space-x-2">
-              <Button onClick={handleAddIntegration}>Simpan</Button>
+              <Button 
+                onClick={handleAddIntegration}
+                disabled={createIntegration.isPending}
+              >
+                {createIntegration.isPending ? "Menyimpan..." : "Simpan"}
+              </Button>
               <Button variant="outline" onClick={() => setShowAddForm(false)}>
                 Batal
               </Button>
@@ -240,11 +296,12 @@ const ApiIntegrations = () => {
                   </TableCell>
                   <TableCell className="font-mono text-sm">{integration.endpoint}</TableCell>
                   <TableCell>{getStatusBadge(integration.status)}</TableCell>
-                  <TableCell>{new Date(integration.lastSync).toLocaleString('id-ID')}</TableCell>
+                  <TableCell>{new Date(integration.last_sync).toLocaleString('id-ID')}</TableCell>
                   <TableCell>
                     <Switch
-                      checked={integration.isActive}
-                      onCheckedChange={() => toggleIntegration(integration.id)}
+                      checked={integration.is_active}
+                      onCheckedChange={() => toggleIntegration(integration.id, integration.is_active)}
+                      disabled={updateIntegration.isPending}
                     />
                   </TableCell>
                   <TableCell>
@@ -253,13 +310,15 @@ const ApiIntegrations = () => {
                         size="sm"
                         variant="outline"
                         onClick={() => testConnection(integration.id)}
+                        disabled={updateIntegration.isPending}
                       >
                         <RefreshCw className="w-4 h-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => deleteIntegration(integration.id)}
+                        onClick={() => handleDeleteIntegration(integration.id)}
+                        disabled={deleteIntegration.isPending}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>

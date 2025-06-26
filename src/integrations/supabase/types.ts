@@ -9,6 +9,93 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      api_integrations: {
+        Row: {
+          api_key: string
+          created_at: string
+          description: string | null
+          endpoint: string
+          id: string
+          is_active: boolean
+          last_sync: string
+          name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          description?: string | null
+          endpoint: string
+          id?: string
+          is_active?: boolean
+          last_sync?: string
+          name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          description?: string | null
+          endpoint?: string
+          id?: string
+          is_active?: boolean
+          last_sync?: string
+          name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          changes: Json | null
+          created_at: string
+          details: string
+          id: string
+          ip_address: string
+          resource: string
+          resource_id: string
+          status: string
+          timestamp: string
+          user_agent: string
+          user_id: string | null
+          user_name: string
+        }
+        Insert: {
+          action: string
+          changes?: Json | null
+          created_at?: string
+          details: string
+          id?: string
+          ip_address: string
+          resource: string
+          resource_id: string
+          status?: string
+          timestamp?: string
+          user_agent: string
+          user_id?: string | null
+          user_name: string
+        }
+        Update: {
+          action?: string
+          changes?: Json | null
+          created_at?: string
+          details?: string
+          id?: string
+          ip_address?: string
+          resource?: string
+          resource_id?: string
+          status?: string
+          timestamp?: string
+          user_agent?: string
+          user_id?: string | null
+          user_name?: string
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string
