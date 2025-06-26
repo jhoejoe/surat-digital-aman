@@ -1,95 +1,86 @@
 
 import { Button } from "@/components/ui/button";
-import { Shield, Menu, X } from "lucide-react";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { FileText, Settings, LogOut, User } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Header = () => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
+  const { user, profile, signOut } = useAuth();
 
-  const menuItems = [
-    { name: "Beranda", path: "/" },
-    { name: "Kirim Surat", path: "/kirim-surat" },
-    { name: "Cek Keaslian", path: "/cek-keaslian" },
-    { name: "Cek Progress", path: "/cek-progress" },
-    { name: "Bantuan", path: "/bantuan" },
-  ];
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
-    <header className="bg-white shadow-sm border-b sticky top-0 z-50">
+    <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center py-4">
+        <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={() => navigate("/")}>
-            <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-              <Shield className="w-6 h-6 text-white" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-gray-900">SuratAman</h1>
-              <p className="text-xs text-gray-600">Tanda Tangan Digital</p>
-            </div>
-          </div>
+          <Link to="/" className="flex items-center space-x-2">
+            <FileText className="h-8 w-8 text-blue-600" />
+            <span className="text-2xl font-bold text-gray-900">SuratAman</span>
+          </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {menuItems.map((item) => (
-              <button
-                key={item.name}
-                onClick={() => navigate(item.path)}
-                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
-              >
-                {item.name}
-              </button>
-            ))}
+          {/* Navigation */}
+          <nav className="hidden md:flex space-x-8">
+            <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Beranda
+            </Link>
+            <Link to="/kirim-surat" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Kirim Surat
+            </Link>
+            <Link to="/cek-keaslian" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Cek Keaslian
+            </Link>
+            <Link to="/cek-progress" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Cek Progress
+            </Link>
+            <Link to="/bantuan" className="text-gray-700 hover:text-blue-600 transition-colors">
+              Bantuan
+            </Link>
           </nav>
 
-          {/* Desktop CTA */}
-          <div className="hidden md:flex items-center space-x-4">
-            <Button variant="outline" onClick={() => navigate("/cek-keaslian")}>
-              Verifikasi Dokumen
-            </Button>
-            <Button onClick={() => navigate("/kirim-surat")}>
-              Mulai Sekarang
-            </Button>
-          </div>
-
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
-          >
-            {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 border-t">
-            <nav className="flex flex-col space-y-4">
-              {menuItems.map((item) => (
-                <button
-                  key={item.name}
-                  onClick={() => {
-                    navigate(item.path);
-                    setIsMenuOpen(false);
-                  }}
-                  className="text-gray-700 hover:text-blue-600 font-medium text-left"
+          {/* Auth Section */}
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <>
+                <span className="text-sm text-gray-600">
+                  Halo, {profile?.full_name || user.email}
+                </span>
+                {profile?.role === 'admin' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate("/admin")}
+                    className="flex items-center space-x-2"
+                  >
+                    <Settings className="h-4 w-4" />
+                    <span>Admin</span>
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSignOut}
+                  className="flex items-center space-x-2"
                 >
-                  {item.name}
-                </button>
-              ))}
-              <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="outline" onClick={() => navigate("/cek-keaslian")}>
-                  Verifikasi Dokumen
+                  <LogOut className="h-4 w-4" />
+                  <span>Keluar</span>
                 </Button>
-                <Button onClick={() => navigate("/kirim-surat")}>
-                  Mulai Sekarang
-                </Button>
-              </div>
-            </nav>
+              </>
+            ) : (
+              <Button
+                onClick={() => navigate("/auth")}
+                className="flex items-center space-x-2"
+              >
+                <User className="h-4 w-4" />
+                <span>Masuk</span>
+              </Button>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </header>
   );
