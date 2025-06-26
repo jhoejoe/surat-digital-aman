@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { FileText, Settings, LogOut, User } from "lucide-react";
+import { FileText, Settings, LogOut, User, Shield } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -51,13 +51,13 @@ const Header = () => {
                 </span>
                 {profile?.role === 'admin' && (
                   <Button
-                    variant="outline"
+                    variant="default"
                     size="sm"
                     onClick={() => navigate("/admin")}
-                    className="flex items-center space-x-2"
+                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
                   >
-                    <Settings className="h-4 w-4" />
-                    <span>Admin</span>
+                    <Shield className="h-4 w-4" />
+                    <span>Dashboard Admin</span>
                   </Button>
                 )}
                 <Button
