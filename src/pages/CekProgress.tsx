@@ -1,257 +1,124 @@
-
 import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Search, ArrowLeft, FileText, Clock, CheckCircle } from "lucide-react";
+import { FileText, CheckCircle, AlertTriangle, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useDocuments, useDocument } from "@/hooks/useDocuments";
-import type { Tables } from "@/integrations/supabase/types";
-
-type Document = Tables<"documents">;
-type VerificationResult = Tables<"verification_results">;
-
-interface DocumentWithVerification extends Document {
-  verification_results: VerificationResult[];
-}
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const CekProgress = () => {
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchedTicket, setSearchedTicket] = useState("");
-  
-  const { data: recentDocuments, isLoading: isLoadingRecent } = useDocuments();
-  const { data: searchResult, isLoading: isSearching, error: searchError } = useDocument(searchedTicket);
+  const [ticketNumber, setTicketNumber] = useState("");
+  const [documentStatus, setDocumentStatus] = useState<"pending" | "processing" | "completed" | "rejected" | null>(null);
+  const [statusMessage, setStatusMessage] = useState("");
 
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
-    setSearchedTicket(searchQuery.trim());
-  };
-
-  const getStatusBadge = (status: Document['status']) => {
-    const statusConfig = {
-      PENDING: { label: "Menunggu", color: "bg-yellow-500" },
-      PROCESSING: { label: "Diproses", color: "bg-blue-500" },
-      COMPLETED: { label: "Selesai", color: "bg-green-500" },
-      FAILED: { label: "Gagal", color: "bg-red-500" }
-    };
-    
-    const config = statusConfig[status as keyof typeof statusConfig];
-    return (
-      <Badge className={`${config.color} text-white`}>
-        {config.label}
-      </Badge>
-    );
-  };
-
-  const getStatusIcon = (status: Document['status']) => {
-    switch (status) {
-      case "PENDING":
-        return <Clock className="w-5 h-5 text-yellow-500" />;
-      case "PROCESSING":
-        return <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-500"></div>;
-      case "COMPLETED":
-        return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case "FAILED":
-        return <CheckCircle className="w-5 h-5 text-red-500" />;
-      default:
-        return <FileText className="w-5 h-5 text-gray-500" />;
+  const handleCheckProgress = () => {
+    // Mock API call to check document progress
+    // In a real application, this would be an API call to your backend
+    if (ticketNumber === "TKT123456") {
+      setDocumentStatus("completed");
+      setStatusMessage("Dokumen telah berhasil ditandatangani dan diverifikasi.");
+    } else if (ticketNumber === "TKT789012") {
+      setDocumentStatus("rejected");
+      setStatusMessage("Dokumen ditolak karena tidak memenuhi persyaratan.");
+    } else if (ticketNumber === "TKT345678") {
+      setDocumentStatus("processing");
+      setStatusMessage("Dokumen sedang dalam proses verifikasi.");
+    } else {
+      setDocumentStatus("pending");
+      setStatusMessage("Dokumen belum diproses. Mohon menunggu.");
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('id-ID');
-  };
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center py-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/')}
-              className="mr-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Kembali
-            </Button>
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-green-600 rounded-lg flex items-center justify-center">
-                <FileText className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Cek Progress</h1>
-                <p className="text-sm text-gray-600">Pantau status verifikasi dokumen Anda</p>
-              </div>
-            </div>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        {/* Header */}
+        <div className="mb-8">
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/")}
+            className="mb-4"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Kembali ke Beranda
+          </Button>
+          
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Cek Status Dokumen
+          </h1>
+          <p className="text-gray-600">
+            Masukkan nomor tiket untuk melihat progress dokumen Anda
+          </p>
         </div>
-      </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Search Section */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Cari Dokumen</CardTitle>
-            <CardDescription>
-              Masukkan nomor tiket atau QR code untuk melihat status dokumen
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="flex space-x-4">
-              <div className="flex-1">
-                <Label htmlFor="search">Nomor Tiket / QR Code</Label>
-                <Input
-                  id="search"
-                  placeholder="Contoh: TKT2024001 atau QR001ABC"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                />
-              </div>
-              <div className="flex items-end">
-                <Button onClick={handleSearch} disabled={isSearching}>
-                  {isSearching ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                  ) : (
-                    <Search className="w-4 h-4" />
-                  )}
-                </Button>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Search Result */}
-        {searchResult && (
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                <span>Hasil Pencarian</span>
-                {getStatusBadge(searchResult.status)}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-4">
-                  <div className="flex items-start space-x-3">
-                    {getStatusIcon(searchResult.status)}
-                    <div>
-                      <Label className="text-sm font-medium text-gray-500">Nama File</Label>
-                      <p className="text-lg font-medium">{searchResult.file_name}</p>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-sm font-medium text-gray-500">Nomor Tiket</Label>
-                    <p className="text-lg font-mono font-medium">{searchResult.ticket_number}</p>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-sm font-medium text-gray-500">Tanggal Submit</Label>
-                    <p className="text-lg font-medium">{formatDate(searchResult.created_at)}</p>
-                  </div>
-                </div>
-                
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium text-gray-500">QR Code</Label>
-                    <p className="text-lg font-mono font-medium">{searchResult.qr_code}</p>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-sm font-medium text-gray-500">Subjek</Label>
-                    <p className="text-lg font-medium">{searchResult.subject}</p>
-                  </div>
-                  
-                  <div>
-                    <Label className="text-sm font-medium text-gray-500">Penerima</Label>
-                    <p className="text-lg font-medium">{searchResult.recipient}</p>
-                  </div>
-                  
-                  {searchResult.verification_results && searchResult.verification_results.length > 0 && (
-                    <>
-                      <div>
-                        <Label className="text-sm font-medium text-gray-500">Validitas Sertifikat</Label>
-                        <p className={`text-lg font-medium ${
-                          searchResult.verification_results[0].certificate_validity === 'VALID' 
-                            ? 'text-green-600' 
-                            : 'text-red-600'
-                        }`}>
-                          {searchResult.verification_results[0].certificate_validity}
-                        </p>
-                      </div>
-                      
-                      <div>
-                        <Label className="text-sm font-medium text-gray-500">Integritas Dokumen</Label>
-                        <p className={`text-lg font-medium ${
-                          searchResult.verification_results[0].document_integrity === 'ASLI' 
-                            ? 'text-green-600' 
-                            : 'text-red-600'
-                        }`}>
-                          {searchResult.verification_results[0].document_integrity}
-                        </p>
-                      </div>
-                    </>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {searchQuery && searchError && !isSearching && (
-          <Card className="mb-8">
-            <CardContent className="text-center py-8">
-              <p className="text-gray-500">Dokumen tidak ditemukan. Pastikan nomor tiket atau QR code yang Anda masukkan benar.</p>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Recent Documents */}
+        {/* Check Progress Section */}
         <Card>
           <CardHeader>
-            <CardTitle>Dokumen Terbaru</CardTitle>
+            <CardTitle>Masukkan Nomor Tiket</CardTitle>
             <CardDescription>
-              Daftar dokumen yang baru-baru ini disubmit
+              Nomor tiket dapat ditemukan pada email konfirmasi atau setelah
+              pengiriman dokumen.
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            {isLoadingRecent ? (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-                <p className="mt-2 text-gray-500">Memuat dokumen...</p>
-              </div>
-            ) : recentDocuments && recentDocuments.length > 0 ? (
-              <div className="space-y-4">
-                {recentDocuments.slice(0, 10).map((doc) => (
-                  <div key={doc.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
-                    <div className="flex items-center space-x-4">
-                      {getStatusIcon(doc.status)}
-                      <div>
-                        <p className="font-medium">{doc.file_name}</p>
-                        <p className="text-sm text-gray-500">{doc.ticket_number}</p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      {getStatusBadge(doc.status)}
-                      <p className="text-sm text-gray-500 mt-1">{formatDate(doc.created_at)}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-8">
-                <p className="text-gray-500">Belum ada dokumen yang disubmit.</p>
-              </div>
-            )}
+          <CardContent className="space-y-4">
+            <div>
+              <Label htmlFor="ticketNumber">Nomor Tiket</Label>
+              <Input
+                id="ticketNumber"
+                placeholder="TKT123456"
+                value={ticketNumber}
+                onChange={(e) => setTicketNumber(e.target.value)}
+              />
+            </div>
+            <Button onClick={handleCheckProgress}>
+              Cek Progress
+            </Button>
           </CardContent>
         </Card>
-      </main>
+
+        {/* Status Display */}
+        {documentStatus && (
+          <Card className="mt-8">
+            <CardHeader>
+              <CardTitle>Status Dokumen</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {documentStatus === "pending" && (
+                <div className="flex items-center text-yellow-600">
+                  <AlertTriangle className="w-5 h-5 mr-2" />
+                  <p>Pending</p>
+                </div>
+              )}
+              {documentStatus === "processing" && (
+                <div className="flex items-center text-blue-600">
+                  <FileText className="w-5 h-5 mr-2 animate-pulse" />
+                  <p>Processing</p>
+                </div>
+              )}
+              {documentStatus === "completed" && (
+                <div className="flex items-center text-green-600">
+                  <CheckCircle className="w-5 h-5 mr-2" />
+                  <p>Completed</p>
+                </div>
+              )}
+              {documentStatus === "rejected" && (
+                <div className="flex items-center text-red-600">
+                  <AlertTriangle className="w-5 h-5 mr-2" />
+                  <p>Rejected</p>
+                </div>
+              )}
+              <p className="text-gray-700">{statusMessage}</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+      
+      <Footer />
     </div>
   );
 };

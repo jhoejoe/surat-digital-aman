@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,6 +9,8 @@ import { toast } from "@/hooks/use-toast";
 import { useCreateDocument, useUpdateDocumentStatus } from "@/hooks/useDocuments";
 import { useCreateVerificationResult } from "@/hooks/useVerificationResults";
 import { generateTicketNumber, generateQRCode, calculateFileHash, simulateDocumentVerification } from "@/utils/documentUtils";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 interface VerificationResult {
   fileName: string;
@@ -160,33 +161,10 @@ const CekKeaslian = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center py-4">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/')}
-              className="mr-4"
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Kembali
-            </Button>
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-orange-600 rounded-lg flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">Cek Keaslian Dokumen</h1>
-                <p className="text-sm text-gray-600">Verifikasi tanda tangan digital pada dokumen PDF</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {!verificationResult ? (
           <Card>
             <CardHeader>
@@ -362,7 +340,9 @@ const CekKeaslian = () => {
             </div>
           </div>
         )}
-      </main>
+      </div>
+      
+      <Footer />
     </div>
   );
 };
