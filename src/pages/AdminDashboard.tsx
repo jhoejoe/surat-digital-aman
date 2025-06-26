@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
@@ -5,6 +6,7 @@ import Footer from "@/components/Footer";
 import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminDocuments from "@/components/AdminDocuments";
 import AdminUsers from "@/components/AdminUsers";
+import AdminCertificates from "@/components/AdminCertificates";
 import ApiIntegrations from "@/components/ApiIntegrations";
 import AuditTrail from "@/components/AuditTrail";
 
@@ -33,6 +35,15 @@ const AdminDashboard = () => {
             </div>
           </div>
         );
+      case "certificates":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Manajemen Sertifikat</h2>
+              <AdminCertificates />
+            </div>
+          </div>
+        );
       case "integrations":
         return <ApiIntegrations />;
       case "audit":
@@ -53,10 +64,11 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="analytics">Analisa</TabsTrigger>
             <TabsTrigger value="documents">Dokumen</TabsTrigger>
             <TabsTrigger value="users">Pengguna</TabsTrigger>
+            <TabsTrigger value="certificates">Sertifikat</TabsTrigger>
             <TabsTrigger value="integrations">API Integration</TabsTrigger>
             <TabsTrigger value="audit">Audit Trail</TabsTrigger>
           </TabsList>
