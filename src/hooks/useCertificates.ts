@@ -1,22 +1,19 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Tables, TablesInsert } from "@/integrations/supabase/types";
-
-type Certificate = Tables<"certificates">;
-type CertificateInsert = TablesInsert<"certificates">;
+import type { Certificate, CertificateInsert } from "@/types/certificate";
 
 export const useCertificates = () => {
   return useQuery({
     queryKey: ["certificates"],
-    queryFn: async () => {
+    queryFn: async (): Promise<Certificate[]> => {
       const { data, error } = await supabase
         .from("certificates")
         .select("*")
         .order("created_at", { ascending: false });
       
       if (error) throw error;
-      return data;
+      return data || [];
     },
   });
 };
@@ -24,7 +21,7 @@ export const useCertificates = () => {
 export const useCertificate = (id: string) => {
   return useQuery({
     queryKey: ["certificate", id],
-    queryFn: async () => {
+    queryFn: async (): Promise<Certificate> => {
       const { data, error } = await supabase
         .from("certificates")
         .select("*")
@@ -42,7 +39,7 @@ export const useCreateCertificate = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (certificateData: CertificateInsert) => {
+    mutationFn: async (certificateData: CertificateInsert): Promise<Certificate> => {
       const { data, error } = await supabase
         .from("certificates")
         .insert(certificateData)
@@ -62,7 +59,7 @@ export const useUpdateCertificate = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ id, ...updates }: Partial<Certificate> & { id: string }) => {
+    mutationFn: async ({ id, ...updates }: Partial<Certificate> & { id: string }): Promise<Certificate> => {
       const { data, error } = await supabase
         .from("certificates")
         .update({
@@ -86,7 +83,7 @@ export const useDeleteCertificate = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (id: string) => {
+    mutationFn: async (id: string): Promise<void> => {
       const { error } = await supabase
         .from("certificates")
         .delete()

@@ -7,12 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Shield, Search, Plus, Eye, Download, Trash2, RefreshCw, AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { useCertificates } from "@/hooks/useCertificates";
+import type { Certificate } from "@/types/certificate";
 
 const AdminCertificates = () => {
   const { data: certificates = [], isLoading, refetch } = useCertificates();
   const [searchTerm, setSearchTerm] = useState("");
 
-  const filteredCertificates = certificates.filter(cert => 
+  const filteredCertificates = certificates.filter((cert: Certificate) => 
     cert.subject_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cert.issuer_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     cert.serial_number?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -139,7 +140,7 @@ const AdminCertificates = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredCertificates.map((cert) => (
+                filteredCertificates.map((cert: Certificate) => (
                   <TableRow key={cert.id}>
                     <TableCell>
                       <div>
