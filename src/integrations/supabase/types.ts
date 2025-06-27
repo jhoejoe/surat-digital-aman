@@ -96,6 +96,63 @@ export type Database = {
         }
         Relationships: []
       }
+      certificates: {
+        Row: {
+          certificate_data: string | null
+          common_name: string | null
+          created_at: string
+          extended_key_usage: string[] | null
+          fingerprint: string | null
+          id: string
+          issuer_name: string | null
+          key_usage: string[] | null
+          public_key: string | null
+          serial_number: string
+          status: string
+          subject_alternative_names: string[] | null
+          subject_name: string
+          updated_at: string
+          valid_from: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          certificate_data?: string | null
+          common_name?: string | null
+          created_at?: string
+          extended_key_usage?: string[] | null
+          fingerprint?: string | null
+          id?: string
+          issuer_name?: string | null
+          key_usage?: string[] | null
+          public_key?: string | null
+          serial_number: string
+          status?: string
+          subject_alternative_names?: string[] | null
+          subject_name: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          certificate_data?: string | null
+          common_name?: string | null
+          created_at?: string
+          extended_key_usage?: string[] | null
+          fingerprint?: string | null
+          id?: string
+          issuer_name?: string | null
+          key_usage?: string[] | null
+          public_key?: string | null
+          serial_number?: string
+          status?: string
+          subject_alternative_names?: string[] | null
+          subject_name?: string
+          updated_at?: string
+          valid_from?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       documents: {
         Row: {
           created_at: string

@@ -1,7 +1,10 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import type { Certificate, CertificateInsert } from "@/types/certificate";
+import type { Tables, TablesInsert } from "@/integrations/supabase/types";
+
+type Certificate = Tables<"certificates">;
+type CertificateInsert = TablesInsert<"certificates">;
 
 export const useCertificates = () => {
   return useQuery({

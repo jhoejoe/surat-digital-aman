@@ -7,7 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Shield, Search, Plus, Eye, Download, Trash2, RefreshCw, AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
 import { useCertificates } from "@/hooks/useCertificates";
-import type { Certificate } from "@/types/certificate";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Certificate = Tables<"certificates">;
 
 const AdminCertificates = () => {
   const { data: certificates = [], isLoading, refetch } = useCertificates();
