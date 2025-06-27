@@ -6,13 +6,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/input";
 import { Shield, Search, Plus, Eye, Download, Trash2, RefreshCw, AlertCircle, CheckCircle } from "lucide-react";
 import { useState } from "react";
-import { useCertificates } from "@/hooks/useCertificates";
+import { useCertificates, useDeleteCertificate } from "@/hooks/useCertificates";
+import { useToast } from "@/hooks/use-toast";
+import { logActivity } from "@/hooks/useAuditTrail";
 import type { Tables } from "@/integrations/supabase/types";
 
 type Certificate = Tables<"certificates">;
 
 const AdminCertificates = () => {
   const { data: certificates = [], isLoading, refetch } = useCertificates();
+  const deleteCertificate = useDeleteCertificate();
+  const { toast } = useToast();
   const [searchTerm, setSearchTerm] = useState("");
 
   const filteredCertificates = certificates.filter((cert: Certificate) => 
@@ -58,6 +62,70 @@ const AdminCertificates = () => {
 
   const handleRefresh = () => {
     refetch();
+  };
+
+  const handleDeleteCertificate = async (certificate: Certificate) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus sertifikat "${certificate.subject_name}"?`)) {
+      return;
+    }
+
+    try {
+      await deleteCertificate.mutateAsync(certificate.id);
+
+      // Log the activity
+      await logActivity(
+        "DELETE_CERTIFICATE",
+        "CERTIFICATE",
+        certificate.id,
+        `Sertifikat '${certificate.subject_name}' berhasil dihapus`
+      );
+
+      toast({
+        title: "Berhasil",
+        description: "Sertifikat berhasil dihapus"
+      });
+    } catch (error) {
+      console.error("Error deleting certificate:", error);
+      toast({
+        title: "Error",
+        description: "Gagal menghapus sertifikat",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleDownloadCertificate = (certificate: Certificate) => {
+    if (!certificate.certificate_data) {
+      toast({
+        title: "Error",
+        description: "Data sertifikat tidak tersedia",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      // Create downloadable file from certificate data
+      const blob = new Blob([certificate.certificate_data], { type: 'application/x-x509-ca-cert' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${certificate.subject_name}_certificate.crt`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Berhasil",
+        description: "Sertifikat berhasil diunduh"
+      });
+    } catch (error) {
+      console.error("Error downloading certificate:", error);
+      toast({
+        title: "Error",
+        description: "Gagal mengunduh sertifikat",
+        variant: "destructive"
+      });
+    }
   };
 
   const formatDate = (dateString: string) => {
@@ -186,10 +254,21 @@ const AdminCertificates = () => {
                         <Button size="sm" variant="outline" title="Lihat Detail">
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline" title="Unduh Sertifikat">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          title="Unduh Sertifikat"
+                          onClick={() => handleDownloadCertificate(cert)}
+                        >
                           <Download className="w-4 h-4" />
                         </Button>
-                        <Button size="sm" variant="outline" title="Hapus">
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          title="Hapus"
+                          onClick={() => handleDeleteCertificate(cert)}
+                          disabled={deleteCertificate.isPending}
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
