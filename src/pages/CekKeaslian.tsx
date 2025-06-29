@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Upload, FileText, CheckCircle, X, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
-import { useCreateDocument, useUpdateDocumentStatus } from "@/hooks/useDocuments";
+import { useCreateDocument, useUpdateDocument } from "@/hooks/useDocuments";
 import { useCreateVerificationResult } from "@/hooks/useVerificationResults";
 import { generateTicketNumber, generateQRCode, calculateFileHash, simulateDocumentVerification } from "@/utils/documentUtils";
 import Header from "@/components/Header";
@@ -28,7 +29,7 @@ interface VerificationResult {
 const CekKeaslian = () => {
   const navigate = useNavigate();
   const createDocument = useCreateDocument();
-  const updateDocumentStatus = useUpdateDocumentStatus();
+  const updateDocument = useUpdateDocument();
   const createVerificationResult = useCreateVerificationResult();
   
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -117,7 +118,7 @@ const CekKeaslian = () => {
       console.log("Verification result created");
       
       // Update document status to completed
-      await updateDocumentStatus.mutateAsync({
+      await updateDocument.mutateAsync({
         id: document.id,
         status: "COMPLETED"
       });

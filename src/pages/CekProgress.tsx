@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, CheckCircle, AlertTriangle, ArrowLeft, Clock, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useDocument } from "@/hooks/useDocuments";
+import { useVerificationResultsByDocumentId } from "@/hooks/useVerificationResults";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -19,6 +19,7 @@ const CekProgress = () => {
   const [searchTicket, setSearchTicket] = useState("");
 
   const { data: document, isLoading, error } = useDocument(searchTicket);
+  const { data: verificationResults = [] } = useVerificationResultsByDocumentId(document?.id || "");
 
   const handleCheckProgress = () => {
     if (!ticketNumber.trim()) {
@@ -233,12 +234,12 @@ const CekProgress = () => {
               )}
 
               {/* Verification Results */}
-              {document.verification_results && document.verification_results.length > 0 && (
+              {verificationResults && verificationResults.length > 0 && (
                 <div>
                   <h4 className="font-semibold text-gray-900 mb-2">Hasil Verifikasi</h4>
                   <div className="space-y-2">
-                    {document.verification_results.map((result: any, index: number) => (
-                      <div key={index} className="p-3 bg-gray-50 rounded-lg">
+                    {verificationResults.map((result, index) => (
+                      <div key={result.id || index} className="p-3 bg-gray-50 rounded-lg">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
                           <div>
                             <span className="font-medium">Integritas:</span>
