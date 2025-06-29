@@ -1,8 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Shield, Zap, Globe, Users, FileCheck, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Features = () => {
+  const navigate = useNavigate();
+
   const mainFeatures = [
     {
       icon: Shield,
@@ -87,12 +91,19 @@ const Features = () => {
               platform kami untuk solusi tanda tangan digital mereka.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+              <Button 
+                onClick={() => navigate("/demo")}
+                className="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
+              >
                 Demo Gratis
-              </button>
-              <button className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors">
+              </Button>
+              <Button 
+                onClick={() => navigate("/contact")}
+                variant="outline"
+                className="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition-colors"
+              >
                 Hubungi Sales
-              </button>
+              </Button>
             </div>
           </div>
         </div>
