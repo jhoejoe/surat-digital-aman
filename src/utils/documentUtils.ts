@@ -31,33 +31,3 @@ export const calculateFileHash = (file: File): Promise<string> => {
     reader.readAsArrayBuffer(file);
   });
 };
-
-export const simulateDocumentVerification = (fileName: string) => {
-  // Simulate PDF signature verification
-  const mockResults = [
-    {
-      certificateValidity: "VALID" as const,
-      documentIntegrity: "ASLI" as const,
-      signerName: "Dr. Ahmad Wijaya, S.Kom., M.T.",
-      signatureLocation: "Jakarta, Indonesia",
-      signatureCount: 1,
-    },
-    {
-      certificateValidity: "VALID" as const,
-      documentIntegrity: "ASLI" as const,
-      signerName: "Prof. Sarah Melinda, Ph.D., Ir. Budi Santoso, M.Eng.",
-      signatureLocation: "Bandung, Indonesia",
-      signatureCount: 2,
-    },
-    {
-      certificateValidity: "INVALID" as const,
-      documentIntegrity: "SUDAH DIMODIFIKASI" as const,
-      signerName: "Unknown Signer",
-      signatureLocation: null,
-      signatureCount: 0,
-    },
-  ];
-  
-  // Return random result for simulation
-  return mockResults[Math.floor(Math.random() * mockResults.length)];
-};

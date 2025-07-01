@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "@/hooks/use-toast";
 import { useCreateDocument, useUpdateDocument } from "@/hooks/useDocuments";
 import { useCreateVerificationResult } from "@/hooks/useVerificationResults";
-import { generateTicketNumber, generateQRCode, calculateFileHash, simulateDocumentVerification } from "@/utils/documentUtils";
+import { generateTicketNumber, generateQRCode, calculateFileHash } from "@/utils/documentUtils";
+import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -95,27 +95,38 @@ const CekKeaslian = () => {
       const document = await createDocument.mutateAsync(documentData);
       console.log("Document created:", document);
       
-      // Simulate verification process
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call Supabase Edge Function for real PDF verification
+      console.log("Calling verify-document Edge Function...");
       
-      // Simulate document verification
-      const mockVerification = simulateDocumentVerification(selectedFile.name);
-      console.log("Mock verification result:", mockVerification);
-      
-      // Create verification result record
-      const verificationData = {
+      const { data: verificationData, error: verificationError } = await supabase.functions.invoke('verify-document', {
+        body: {
+          file_hash: fileHash,
+          file_name: selectedFile.name,
+          document_id: document.id
+        }
+      });
+
+      if (verificationError) {
+        console.error("Edge Function error:", verificationError);
+        throw new Error(`Verification failed: ${verificationError.message}`);
+      }
+
+      console.log("Edge Function response:", verificationData);
+
+      // Create verification result record with real data
+      const verificationResultData = {
         document_id: document.id,
-        signature_count: mockVerification.signatureCount,
-        certificate_validity: mockVerification.certificateValidity,
-        signer_name: mockVerification.signerName,
-        signature_time: new Date().toISOString(),
+        signature_count: verificationData.signatureCount,
+        certificate_validity: verificationData.certificateValidity,
+        signer_name: verificationData.signerName,
+        signature_time: verificationData.verificationTime,
         valid_until: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
-        document_integrity: mockVerification.documentIntegrity,
-        signature_location: mockVerification.signatureLocation,
+        document_integrity: verificationData.documentIntegrity,
+        signature_location: verificationData.signatureLocation,
       };
       
-      await createVerificationResult.mutateAsync(verificationData);
-      console.log("Verification result created");
+      await createVerificationResult.mutateAsync(verificationResultData);
+      console.log("Verification result created with real data");
       
       // Update document status to completed
       await updateDocument.mutateAsync({
@@ -124,16 +135,16 @@ const CekKeaslian = () => {
       });
       console.log("Document status updated to COMPLETED");
       
-      // Set verification result for display
+      // Set verification result for display with real data
       const result: VerificationResult = {
         fileName: selectedFile.name,
-        signatureCount: mockVerification.signatureCount,
-        certificateValidity: mockVerification.certificateValidity,
-        signerName: mockVerification.signerName,
-        signatureTime: new Date().toLocaleString('id-ID'),
+        signatureCount: verificationData.signatureCount,
+        certificateValidity: verificationData.certificateValidity,
+        signerName: verificationData.signerName,
+        signatureTime: new Date(verificationData.verificationTime).toLocaleString('id-ID'),
         validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID'),
-        documentIntegrity: mockVerification.documentIntegrity,
-        signatureLocation: mockVerification.signatureLocation || undefined,
+        documentIntegrity: verificationData.documentIntegrity,
+        signatureLocation: verificationData.signatureLocation || undefined,
         qrCode: qrCode,
         ticketNumber: ticketNumber
       };
@@ -143,14 +154,14 @@ const CekKeaslian = () => {
       
       toast({
         title: "Verifikasi Berhasil",
-        description: "Dokumen telah diverifikasi dan disimpan ke database",
+        description: "Dokumen telah diverifikasi menggunakan sistem verifikasi digital yang sesungguhnya",
       });
     } catch (error) {
       console.error("Error during verification:", error);
       setIsVerifying(false);
       toast({
         title: "Verifikasi Gagal",
-        description: "Terjadi kesalahan saat memverifikasi dokumen. Silakan coba lagi.",
+        description: `Terjadi kesalahan saat memverifikasi dokumen: ${error.message}`,
         variant: "destructive"
       });
     }
@@ -174,7 +185,7 @@ const CekKeaslian = () => {
                 Upload Dokumen PDF
               </CardTitle>
               <CardDescription>
-                Pilih file PDF yang ingin diverifikasi keasliannya
+                Pilih file PDF yang ingin diverifikasi keasliannya menggunakan sistem verifikasi digital
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -242,7 +253,7 @@ const CekKeaslian = () => {
               <CardHeader>
                 <CardTitle className="flex items-center text-green-600">
                   <CheckCircle className="w-5 h-5 mr-2" />
-                  Hasil Verifikasi Dokumen
+                  Hasil Verifikasi Dokumen Digital
                 </CardTitle>
               </CardHeader>
               <CardContent>
