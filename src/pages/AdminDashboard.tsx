@@ -10,6 +10,7 @@ import AdminCertificates from "@/components/AdminCertificates";
 import ApiIntegrations from "@/components/ApiIntegrations";
 import AuditTrail from "@/components/AuditTrail";
 import TeamManagement from "@/components/TeamManagement";
+import AdminBlog from "@/components/AdminBlog";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("analytics");
@@ -54,6 +55,8 @@ const AdminDashboard = () => {
             </div>
           </div>
         );
+      case "blog":
+        return <AdminBlog />;
       case "integrations":
         return <ApiIntegrations />;
       case "audit":
@@ -74,12 +77,13 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-7">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="analytics">Analisa</TabsTrigger>
             <TabsTrigger value="documents">Dokumen</TabsTrigger>
             <TabsTrigger value="users">Pengguna</TabsTrigger>
             <TabsTrigger value="teams">Tim</TabsTrigger>
             <TabsTrigger value="certificates">Sertifikat</TabsTrigger>
+            <TabsTrigger value="blog">Blog</TabsTrigger>
             <TabsTrigger value="integrations">API Integration</TabsTrigger>
             <TabsTrigger value="audit">Audit Trail</TabsTrigger>
           </TabsList>
