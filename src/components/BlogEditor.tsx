@@ -34,6 +34,12 @@ const BlogEditor = ({ post, onSubmit, onCancel, isLoading }: BlogEditorProps) =>
     });
   };
 
+  const handleStatusChange = (value: string) => {
+    if (value === 'draft' || value === 'published' || value === 'archived') {
+      setValue("status", value);
+    }
+  };
+
   return (
     <Card className="max-w-4xl mx-auto">
       <CardHeader>
@@ -96,7 +102,7 @@ const BlogEditor = ({ post, onSubmit, onCancel, isLoading }: BlogEditorProps) =>
 
           <div>
             <Label htmlFor="status">Status</Label>
-            <Select onValueChange={(value) => setValue("status", value)} defaultValue={watch("status")}>
+            <Select onValueChange={handleStatusChange} defaultValue={watch("status")}>
               <SelectTrigger>
                 <SelectValue placeholder="Pilih status" />
               </SelectTrigger>
