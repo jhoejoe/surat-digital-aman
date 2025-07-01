@@ -77,16 +77,58 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
-            <TabsTrigger value="analytics">Analisa</TabsTrigger>
-            <TabsTrigger value="documents">Dokumen</TabsTrigger>
-            <TabsTrigger value="users">Pengguna</TabsTrigger>
-            <TabsTrigger value="teams">Tim</TabsTrigger>
-            <TabsTrigger value="certificates">Sertifikat</TabsTrigger>
-            <TabsTrigger value="blog">Blog</TabsTrigger>
-            <TabsTrigger value="integrations">API Integration</TabsTrigger>
-            <TabsTrigger value="audit">Audit Trail</TabsTrigger>
-          </TabsList>
+          <div className="border-b border-gray-200 bg-white rounded-lg shadow-sm">
+            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 h-auto bg-transparent p-1">
+              <TabsTrigger 
+                value="analytics" 
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                Analisa
+              </TabsTrigger>
+              <TabsTrigger 
+                value="documents"
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                Dokumen
+              </TabsTrigger>
+              <TabsTrigger 
+                value="users"
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                Pengguna
+              </TabsTrigger>
+              <TabsTrigger 
+                value="teams"
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                Tim
+              </TabsTrigger>
+              <TabsTrigger 
+                value="certificates"
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                Sertifikat
+              </TabsTrigger>
+              <TabsTrigger 
+                value="blog"
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                Blog
+              </TabsTrigger>
+              <TabsTrigger 
+                value="integrations"
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                API Integration
+              </TabsTrigger>
+              <TabsTrigger 
+                value="audit"
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                Audit Trail
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
           <div className="mt-6">
             {renderContent()}
