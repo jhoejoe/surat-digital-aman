@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ const AdminDemoRequests = () => {
   const deleteRequest = useDeleteDemoRequest();
 
   const handleStatusChange = (id: string, status: string) => {
-    updateRequest.mutate({ id, status });
+    updateRequest.mutate({ id, status: status as 'pending' | 'contacted' | 'completed' | 'cancelled' });
   };
 
   const handleDelete = (id: string) => {
