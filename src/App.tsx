@@ -17,6 +17,7 @@ import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Business from "./pages/Business";
+import EMeterai from "./pages/EMeterai";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/business" element={<Business />} />
+            <Route path="/business/e-meterai" element={<EMeterai />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

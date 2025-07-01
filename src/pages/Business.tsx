@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -28,7 +27,8 @@ const Business = () => {
     {
       icon: FileText,
       title: "e-Meterai",
-      description: "Meterai digital resmi yang diakui pemerintah untuk semua dokumen bisnis"
+      description: "Meterai digital resmi yang diakui pemerintah untuk semua dokumen bisnis",
+      link: "/business/e-meterai"
     },
     {
       icon: Building,
@@ -138,7 +138,11 @@ const Business = () => {
                   <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50 p-4">
                     <div className="grid grid-cols-1 gap-3">
                       {productFeatures.map((feature, index) => (
-                        <div key={index} className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer">
+                        <div 
+                          key={index} 
+                          className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
+                          onClick={() => feature.link && navigate(feature.link)}
+                        >
                           <feature.icon className="h-5 w-5 text-red-500" />
                           <div>
                             <p className="font-medium text-gray-900">{feature.title}</p>
@@ -391,7 +395,11 @@ const Business = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {productFeatures.map((feature, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
+              <Card 
+                key={index} 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => feature.link && navigate(feature.link)}
+              >
                 <CardHeader>
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center">
