@@ -36,12 +36,14 @@ export const productFeatures = [
   {
     icon: Zap,
     title: "API Integration",
-    description: "Integrasi mudah dengan sistem existing melalui API"
+    description: "Integrasi mudah dengan sistem existing melalui API",
+    link: "/business/api-integration"
   },
   {
     icon: Globe,
     title: "Digital Certificate",
-    description: "Sertifikat digital untuk validasi dan keamanan dokumen"
+    description: "Sertifikat digital untuk validasi dan keamanan dokumen",
+    link: "/business/digital-certificate"
   }
 ];
 

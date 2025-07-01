@@ -21,6 +21,8 @@ import EMeterai from "./pages/EMeterai";
 import EnterprisePlan from "./pages/EnterprisePlan";
 import OnPremise from "./pages/OnPremise";
 import CustomerOnBoard from "./pages/CustomerOnBoard";
+import APIIntegration from "./pages/APIIntegration";
+import DigitalCertificate from "./pages/DigitalCertificate";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +51,8 @@ const App = () => (
             <Route path="/business/enterprise-plan" element={<EnterprisePlan />} />
             <Route path="/business/on-premise" element={<OnPremise />} />
             <Route path="/business/customer-on-board" element={<CustomerOnBoard />} />
+            <Route path="/business/api-integration" element={<APIIntegration />} />
+            <Route path="/business/digital-certificate" element={<DigitalCertificate />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
