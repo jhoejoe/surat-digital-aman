@@ -24,12 +24,14 @@ export const productFeatures = [
   {
     icon: Shield,
     title: "On Premise",
-    description: "Deploy di server sendiri untuk keamanan dan kontrol maksimal"
+    description: "Deploy di server sendiri untuk keamanan dan kontrol maksimal",
+    link: "/business/on-premise"
   },
   {
     icon: Users,
     title: "Customer On Board",
-    description: "Onboarding mudah untuk pelanggan dengan verifikasi identitas"
+    description: "Onboarding mudah untuk pelanggan dengan verifikasi identitas",
+    link: "/business/customer-on-board"
   },
   {
     icon: Zap,

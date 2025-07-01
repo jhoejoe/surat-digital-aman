@@ -19,6 +19,8 @@ import BlogPost from "./pages/BlogPost";
 import Business from "./pages/Business";
 import EMeterai from "./pages/EMeterai";
 import EnterprisePlan from "./pages/EnterprisePlan";
+import OnPremise from "./pages/OnPremise";
+import CustomerOnBoard from "./pages/CustomerOnBoard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,6 +47,8 @@ const App = () => (
             <Route path="/business" element={<Business />} />
             <Route path="/business/e-meterai" element={<EMeterai />} />
             <Route path="/business/enterprise-plan" element={<EnterprisePlan />} />
+            <Route path="/business/on-premise" element={<OnPremise />} />
+            <Route path="/business/customer-on-board" element={<CustomerOnBoard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
