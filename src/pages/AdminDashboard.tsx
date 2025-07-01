@@ -7,6 +7,7 @@ import AdminAnalytics from "@/components/AdminAnalytics";
 import AdminDocuments from "@/components/AdminDocuments";
 import AdminUsers from "@/components/AdminUsers";
 import AdminCertificates from "@/components/AdminCertificates";
+import AdminDemoRequests from "@/components/AdminDemoRequests";
 import ApiIntegrations from "@/components/ApiIntegrations";
 import AuditTrail from "@/components/AuditTrail";
 import TeamManagement from "@/components/TeamManagement";
@@ -55,6 +56,15 @@ const AdminDashboard = () => {
             </div>
           </div>
         );
+      case "demo":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Permintaan Demo</h2>
+              <AdminDemoRequests />
+            </div>
+          </div>
+        );
       case "blog":
         return <AdminBlog />;
       case "integrations":
@@ -78,7 +88,7 @@ const AdminDashboard = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="border-b border-gray-200 bg-white rounded-lg shadow-sm">
-            <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 h-auto bg-transparent p-1">
+            <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 h-auto bg-transparent p-1">
               <TabsTrigger 
                 value="analytics" 
                 className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
@@ -108,6 +118,12 @@ const AdminDashboard = () => {
                 className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
               >
                 Sertifikat
+              </TabsTrigger>
+              <TabsTrigger 
+                value="demo"
+                className="data-[state=active]:bg-blue-50 data-[state=active]:text-blue-700 data-[state=active]:border-blue-200 border-b-2 border-transparent hover:border-gray-300 transition-colors py-3 px-4 text-sm font-medium"
+              >
+                Demo
               </TabsTrigger>
               <TabsTrigger 
                 value="blog"

@@ -7,13 +7,13 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Play, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { useCreateDemoRequest } from "@/hooks/useDemoRequests";
 
 const Demo = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const createDemoRequest = useCreateDemoRequest();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -35,27 +35,27 @@ const Demo = () => {
     
     // Validasi form
     if (!formData.name || !formData.email || !formData.company) {
-      toast({
-        title: "Form Tidak Lengkap",
-        description: "Silakan lengkapi semua field yang wajib diisi.",
-        variant: "destructive"
-      });
       return;
     }
 
-    // Simulasi pengiriman form
-    toast({
-      title: "Permintaan Demo Berhasil Dikirim!",
-      description: "Tim kami akan menghubungi Anda dalam 1x24 jam untuk mengatur jadwal demo.",
-    });
-
-    // Reset form
-    setFormData({
-      name: "",
-      email: "",
-      company: "",
-      phone: "",
-      message: ""
+    // Submit to database
+    createDemoRequest.mutate({
+      name: formData.name,
+      email: formData.email,
+      company: formData.company,
+      phone: formData.phone || undefined,
+      message: formData.message || undefined
+    }, {
+      onSuccess: () => {
+        // Reset form
+        setFormData({
+          name: "",
+          email: "",
+          company: "",
+          phone: "",
+          message: ""
+        });
+      }
     });
   };
 
@@ -167,8 +167,12 @@ const Demo = () => {
                   />
                 </div>
 
-                <Button type="submit" className="w-full">
-                  Ajukan Demo Gratis
+                <Button 
+                  type="submit" 
+                  className="w-full"
+                  disabled={createDemoRequest.isPending}
+                >
+                  {createDemoRequest.isPending ? "Mengirim..." : "Ajukan Demo Gratis"}
                 </Button>
               </form>
             </CardContent>
