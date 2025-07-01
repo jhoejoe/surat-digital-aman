@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Users, Plus, UserPlus, Trash2, Crown, Shield, User } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Users, Plus, UserPlus, Trash2, Crown, Shield, User, AlertCircle } from "lucide-react";
 import { useTeams, useCreateTeam, useInviteTeamMember, useRemoveTeamMember, useUpdateMemberRole } from "@/hooks/useTeams";
 import { useToast } from "@/hooks/use-toast";
 
@@ -20,7 +22,7 @@ const TeamManagement = () => {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState("member");
 
-  const { data: teams = [], isLoading } = useTeams();
+  const { data: teams = [], isLoading, error } = useTeams();
   const createTeam = useCreateTeam();
   const inviteTeamMember = useInviteTeamMember();
   const removeTeamMember = useRemoveTeamMember();
@@ -29,10 +31,19 @@ const TeamManagement = () => {
 
   const handleCreateTeam = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newTeamName.trim()) {
+      toast({
+        title: "Error",
+        description: "Nama tim harus diisi",
+        variant: "destructive"
+      });
+      return;
+    }
+
     try {
       await createTeam.mutateAsync({
-        name: newTeamName,
-        description: newTeamDescription
+        name: newTeamName.trim(),
+        description: newTeamDescription.trim() || undefined
       });
       setNewTeamName("");
       setNewTeamDescription("");
@@ -52,12 +63,30 @@ const TeamManagement = () => {
 
   const handleInviteMember = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedTeamId) return;
+    if (!selectedTeamId || !inviteEmail.trim()) {
+      toast({
+        title: "Error",
+        description: "Email harus diisi",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(inviteEmail.trim())) {
+      toast({
+        title: "Error",
+        description: "Format email tidak valid",
+        variant: "destructive"
+      });
+      return;
+    }
 
     try {
       await inviteTeamMember.mutateAsync({
         teamId: selectedTeamId,
-        email: inviteEmail,
+        email: inviteEmail.trim().toLowerCase(),
         role: inviteRole
       });
       setInviteEmail("");
@@ -77,6 +106,10 @@ const TeamManagement = () => {
   };
 
   const handleRemoveMember = async (memberId: string, memberName: string) => {
+    if (!confirm(`Apakah Anda yakin ingin menghapus ${memberName} dari tim?`)) {
+      return;
+    }
+
     try {
       await removeTeamMember.mutateAsync({ memberId });
       toast({
@@ -130,8 +163,37 @@ const TeamManagement = () => {
     }
   };
 
+  const getRoleDisplayName = (role: string) => {
+    switch (role) {
+      case "owner":
+        return "Pemilik";
+      case "admin":
+        return "Administrator";
+      default:
+        return "Anggota";
+    }
+  };
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p>Memuat data tim...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Gagal memuat data tim: {error.message}
+        </AlertDescription>
+      </Alert>
+    );
   }
 
   return (
@@ -164,12 +226,13 @@ const TeamManagement = () => {
                 </DialogHeader>
                 <form onSubmit={handleCreateTeam} className="space-y-4">
                   <div>
-                    <Label htmlFor="teamName">Nama Tim</Label>
+                    <Label htmlFor="teamName">Nama Tim *</Label>
                     <Input
                       id="teamName"
                       value={newTeamName}
                       onChange={(e) => setNewTeamName(e.target.value)}
                       placeholder="Masukkan nama tim"
+                      maxLength={100}
                       required
                     />
                   </div>
@@ -180,6 +243,7 @@ const TeamManagement = () => {
                       value={newTeamDescription}
                       onChange={(e) => setNewTeamDescription(e.target.value)}
                       placeholder="Deskripsi tim"
+                      maxLength={255}
                     />
                   </div>
                   <div className="flex justify-end space-x-2">
@@ -197,136 +261,168 @@ const TeamManagement = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            {teams.map((team) => (
-              <Card key={team.id} className="border-l-4 border-l-blue-500">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{team.name}</CardTitle>
-                      {team.description && (
-                        <CardDescription>{team.description}</CardDescription>
-                      )}
+            {teams.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">Belum ada tim</h3>
+                <p className="text-gray-500 mb-4">Buat tim pertama Anda untuk mulai berkolaborasi</p>
+                <Button onClick={() => setIsCreateOpen(true)}>
+                  <Plus className="w-4 h-4 mr-2" />
+                  Buat Tim Pertama
+                </Button>
+              </div>
+            ) : (
+              teams.map((team) => (
+                <Card key={team.id} className="border-l-4 border-l-blue-500">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg">{team.name}</CardTitle>
+                        {team.description && (
+                          <CardDescription>{team.description}</CardDescription>
+                        )}
+                        <div className="flex items-center mt-2 text-sm text-gray-500">
+                          <Users className="w-4 h-4 mr-1" />
+                          {team.team_members?.length || 0} anggota
+                        </div>
+                      </div>
+                      <Dialog open={isInviteOpen && selectedTeamId === team.id} onOpenChange={(open) => {
+                        setIsInviteOpen(open);
+                        if (!open) setSelectedTeamId("");
+                      }}>
+                        <DialogTrigger asChild>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setSelectedTeamId(team.id)}
+                          >
+                            <UserPlus className="w-4 h-4 mr-2" />
+                            Undang Anggota
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Undang Anggota Tim</DialogTitle>
+                            <DialogDescription>
+                              Kirim undangan untuk bergabung dengan tim {team.name}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <form onSubmit={handleInviteMember} className="space-y-4">
+                            <div>
+                              <Label htmlFor="inviteEmail">Email *</Label>
+                              <Input
+                                id="inviteEmail"
+                                type="email"
+                                value={inviteEmail}
+                                onChange={(e) => setInviteEmail(e.target.value)}
+                                placeholder="email@contoh.com"
+                                required
+                              />
+                            </div>
+                            <div>
+                              <Label htmlFor="inviteRole">Peran</Label>
+                              <Select value={inviteRole} onValueChange={setInviteRole}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="member">Anggota</SelectItem>
+                                  <SelectItem value="admin">Administrator</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="flex justify-end space-x-2">
+                              <Button type="button" variant="outline" onClick={() => setIsInviteOpen(false)}>
+                                Batal
+                              </Button>
+                              <Button type="submit" disabled={inviteTeamMember.isPending}>
+                                {inviteTeamMember.isPending ? "Mengirim..." : "Kirim Undangan"}
+                              </Button>
+                            </div>
+                          </form>
+                        </DialogContent>
+                      </Dialog>
                     </div>
-                    <Dialog open={isInviteOpen} onOpenChange={setIsInviteOpen}>
-                      <DialogTrigger asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedTeamId(team.id)}
-                        >
-                          <UserPlus className="w-4 h-4 mr-2" />
-                          Undang Anggota
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Undang Anggota Tim</DialogTitle>
-                          <DialogDescription>
-                            Kirim undangan untuk bergabung dengan tim {team.name}
-                          </DialogDescription>
-                        </DialogHeader>
-                        <form onSubmit={handleInviteMember} className="space-y-4">
-                          <div>
-                            <Label htmlFor="inviteEmail">Email</Label>
-                            <Input
-                              id="inviteEmail"
-                              type="email"
-                              value={inviteEmail}
-                              onChange={(e) => setInviteEmail(e.target.value)}
-                              placeholder="email@contoh.com"
-                              required
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="inviteRole">Peran</Label>
-                            <Select value={inviteRole} onValueChange={setInviteRole}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="member">Member</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="flex justify-end space-x-2">
-                            <Button type="button" variant="outline" onClick={() => setIsInviteOpen(false)}>
-                              Batal
-                            </Button>
-                            <Button type="submit" disabled={inviteTeamMember.isPending}>
-                              {inviteTeamMember.isPending ? "Mengirim..." : "Kirim Undangan"}
-                            </Button>
-                          </div>
-                        </form>
-                      </DialogContent>
-                    </Dialog>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Anggota</TableHead>
-                        <TableHead>Email</TableHead>
-                        <TableHead>Peran</TableHead>
-                        <TableHead>Bergabung</TableHead>
-                        <TableHead>Aksi</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {team.team_members?.map((member) => (
-                        <TableRow key={member.id}>
-                          <TableCell>
-                            <div className="flex items-center">
-                              {getRoleIcon(member.role)}
-                              <span className="ml-2">
-                                {member.profiles?.full_name || "Nama tidak tersedia"}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>{member.profiles?.email || "Email tidak tersedia"}</TableCell>
-                          <TableCell>{getRoleBadge(member.role)}</TableCell>
-                          <TableCell>
-                            {new Date(member.joined_at || new Date()).toLocaleDateString('id-ID')}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex space-x-2">
-                              {member.role !== "owner" && (
-                                <>
-                                  <Select
-                                    value={member.role}
-                                    onValueChange={(newRole) => 
-                                      handleUpdateRole(member.id, newRole, member.profiles?.full_name || "User")
-                                    }
-                                  >
-                                    <SelectTrigger className="w-24">
-                                      <SelectValue />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                      <SelectItem value="member">Member</SelectItem>
-                                      <SelectItem value="admin">Admin</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => 
-                                      handleRemoveMember(member.id, member.profiles?.full_name || "User")
-                                    }
-                                  >
-                                    <Trash2 className="w-4 h-4" />
-                                  </Button>
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </CardContent>
-              </Card>
-            ))}
+                  </CardHeader>
+                  <CardContent>
+                    {team.team_members && team.team_members.length > 0 ? (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Anggota</TableHead>
+                            <TableHead>Email</TableHead>
+                            <TableHead>Peran</TableHead>
+                            <TableHead>Bergabung</TableHead>
+                            <TableHead>Aksi</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {team.team_members.map((member) => (
+                            <TableRow key={member.id}>
+                              <TableCell>
+                                <div className="flex items-center">
+                                  {getRoleIcon(member.role)}
+                                  <span className="ml-2">
+                                    {member.profiles?.full_name || "Nama tidak tersedia"}
+                                  </span>
+                                </div>
+                              </TableCell>
+                              <TableCell>{member.profiles?.email || "Email tidak tersedia"}</TableCell>
+                              <TableCell>{getRoleBadge(member.role)}</TableCell>
+                              <TableCell>
+                                {member.joined_at 
+                                  ? new Date(member.joined_at).toLocaleDateString('id-ID')
+                                  : "Tidak diketahui"
+                                }
+                              </TableCell>
+                              <TableCell>
+                                <div className="flex space-x-2">
+                                  {member.role !== "owner" && (
+                                    <>
+                                      <Select
+                                        value={member.role}
+                                        onValueChange={(newRole) => 
+                                          handleUpdateRole(member.id, newRole, member.profiles?.full_name || "User")
+                                        }
+                                        disabled={updateMemberRole.isPending}
+                                      >
+                                        <SelectTrigger className="w-32">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="member">Anggota</SelectItem>
+                                          <SelectItem value="admin">Admin</SelectItem>
+                                          <SelectItem value="owner">Pemilik</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                      <Button
+                                        size="sm"
+                                        variant="destructive"
+                                        onClick={() => 
+                                          handleRemoveMember(member.id, member.profiles?.full_name || "User")
+                                        }
+                                        disabled={removeTeamMember.isPending}
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    ) : (
+                      <div className="text-center py-4 text-gray-500">
+                        <Users className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+                        <p>Belum ada anggota dalam tim ini</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              ))
+            )}
           </div>
         </CardContent>
       </Card>
