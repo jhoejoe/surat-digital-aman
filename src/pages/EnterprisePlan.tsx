@@ -8,6 +8,7 @@ import {
   Shield, 
   Users, 
   CheckCircle,
+  X,
   Star,
   ArrowRight,
   Phone,
@@ -22,43 +23,39 @@ import Footer from "@/components/Footer";
 const EnterprisePlan = () => {
   const navigate = useNavigate();
 
-  const features = [
-    {
-      icon: Shield,
-      title: "Unlimited Digital Signatures",
-      description: "Get unlimited e-signatures for your team, create unlimited documents and send them to all your clients. Get access to audit trails, custom branding and advanced settings.",
-      image: "/lovable-uploads/2ac1f5c2-3516-4748-b1e3-86c74d5c0c1c.png"
-    },
-    {
-      icon: FileText,
-      title: "More Complete Document Workflow",
-      description: "Your e-signature flow can be designed to be as user-friendly as possible. Allow users to fill out forms or documents via mobile, desktop, or PDF and send reminders about pending signatures.",
-      image: "/lovable-uploads/2ac1f5c2-3516-4748-b1e3-86c74d5c0c1c.png"
-    },
-    {
-      icon: Building,
-      title: "Centralized Document Management & All-in-One Admin Center",
-      description: "Manage your organization don't worry about individual setup or training. All documents are stored centrally by organization & domain. Built-in dashboard that the organization can use to track usage and manage user accesses.",
-      image: "/lovable-uploads/2ac1f5c2-3516-4748-b1e3-86c74d5c0c1c.png"
-    },
-    {
-      icon: Users,
-      title: "Choose Your Digital Certificate",
-      description: "We provide you with a choice of digital certificate providers in Indonesia. So it can give you the best choice so you can make an informed decision.",
-      image: "/lovable-uploads/2ac1f5c2-3516-4748-b1e3-86c74d5c0c1c.png"
-    }
+  const planFeatures = [
+    { name: "Web and Mobile App", personal: true, enterprise: true },
+    { name: "Document List experience", personal: true, enterprise: true, isNew: true },
+    { name: "Upload & Share Document", personal: true, enterprise: true },
+    { name: "Custom Position QR Code", personal: false, enterprise: true, isNew: true },
+    { name: "Combined Document Action Order", personal: false, enterprise: true, isNew: true },
+    { name: "Set Up and Modify Signature", personal: true, enterprise: true },
+    { name: "Request Sign from Others", personal: true, enterprise: true },
+    { name: "Sign with e-Meterai", personal: true, enterprise: true },
+    { name: "Quick Action", personal: true, enterprise: true, isNew: true },
+    { name: "Sign with Notes", personal: false, enterprise: true },
+    { name: "E-Seal", personal: false, enterprise: true },
+    { name: "E-Stamp", personal: false, enterprise: true, isNew: true },
+    { name: "Group Recipient", personal: false, enterprise: true },
+    { name: "Expired Document", personal: false, enterprise: true, isNew: true },
+    { name: "Reminder Document", personal: false, enterprise: true, isNew: true },
+    { name: "Bulk Download", personal: false, enterprise: true },
+    { name: "Bundle Download Document", personal: true, enterprise: true, isNew: true },
+    { name: "Revoke Certificate", personal: true, enterprise: true },
+    { name: "Set Up and Manage Roles", personal: false, enterprise: true },
+    { name: "24/7 Customer Support", personal: true, enterprise: true }
   ];
 
   const whyChooseFeatures = [
     {
       icon: Shield,
       title: "The Leading Digital Signature & Digital Identity Provider",
-      description: "SuratAman is the leading Digital Signature & Digital Identity platform in Indonesia with most number of digital certificates and users."
+      description: "SuratAman Business is the leading Digital Signature & Digital Identity platform in Indonesia with most number of digital certificates and users."
     },
     {
       icon: Building,
       title: "Ensure Legality",
-      description: "Digital signatures created using SuratAman are legally binding and can be legally used in courts and other formal settings."
+      description: "Digital signatures created using SuratAman Business are legally binding and can be legally used in courts and other formal settings."
     },
     {
       icon: CheckCircle,
@@ -85,149 +82,201 @@ const EnterprisePlan = () => {
           <nav className="flex items-center space-x-2 text-sm text-gray-600">
             <Link to="/business" className="hover:text-red-500">Business</Link>
             <ChevronRight className="w-4 h-4" />
-            <span className="text-gray-900">Enterprise Plan</span>
+            <span className="text-gray-900">Compare Plan</span>
           </nav>
         </div>
       </div>
 
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-red-50 to-pink-50 py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-                Enterprise <span className="text-red-500">Plan</span>
-              </h1>
-              <p className="text-xl text-gray-600 mb-8">
-                Digital signatures along with complete workflow for your
-                company's comprehensive needs with Enterprise Plans.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="lg" 
-                  className="bg-red-500 hover:bg-red-600 text-white px-8"
-                  onClick={() => navigate("/demo")}
-                >
-                  Start Trial
-                </Button>
-                <Button 
-                  size="lg" 
-                  variant="outline" 
-                  className="border-red-500 text-red-500 hover:bg-red-50"
-                >
-                  Contact Sales
-                </Button>
-              </div>
-            </div>
-            <div className="relative">
-              <div className="bg-white rounded-lg shadow-2xl p-6 max-w-md ml-auto">
-                <img 
-                  src="/lovable-uploads/2ac1f5c2-3516-4748-b1e3-86c74d5c0c1c.png" 
-                  alt="Enterprise Dashboard" 
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-              </div>
-            </div>
-          </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
+            Find The Perfect <span className="text-red-500">Plan</span><br />
+            for Your Needs
+          </h1>
+          <p className="text-xl text-gray-600 mb-8">
+            Discover your solution and complete your workflow.
+          </p>
         </div>
       </section>
 
-      {/* Get More Section */}
+      {/* Pricing Comparison */}
       <section className="py-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Get More with the New SuratAman Enterprise Plan
-            </h2>
-            <p className="text-xl text-gray-600">
-              Get New & Enjoy more benefits for your Employee Account and immediately
-            </p>
-          </div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Description Column */}
+            <div className="lg:col-span-1">
+              <h3 className="text-2xl font-bold text-gray-900 mb-8">
+                Discover your solution and complete your workflow.
+              </h3>
+            </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-            {features.map((feature, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
-                  <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-                    <feature.icon className="w-8 h-8 text-red-500" />
-                  </div>
-                  <CardTitle className="text-xl">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-600 mb-4">{feature.description}</p>
-                  <div className="w-full h-32 bg-gray-100 rounded-lg flex items-center justify-center">
-                    <img 
-                      src={feature.image} 
-                      alt={feature.title}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {/* Plans Comparison */}
+            <div className="lg:col-span-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                {/* Personal Plan */}
+                <Card className="relative">
+                  <CardHeader className="text-center bg-orange-50">
+                    <div className="w-12 h-12 bg-orange-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <CardTitle className="text-2xl">Personal Plan</CardTitle>
+                    <div className="text-3xl font-bold text-gray-900 mt-4">
+                      IDR 54,000<span className="text-base font-normal">/month</span>
+                    </div>
+                    <p className="text-sm text-gray-600">or IDR 390,000/year (Save 39%)</p>
+                    <Button 
+                      className="mt-4 bg-red-500 hover:bg-red-600 text-white"
+                      onClick={() => navigate("/demo")}
+                    >
+                      Upgrade to Personal Plan
+                    </Button>
+                  </CardHeader>
+                </Card>
+
+                {/* Enterprise Plan */}
+                <Card className="relative border-red-200 bg-gradient-to-br from-purple-50 to-blue-50">
+                  <CardHeader className="text-center">
+                    <div className="w-12 h-12 bg-purple-500 rounded-lg flex items-center justify-center mx-auto mb-4">
+                      <Building className="w-6 h-6 text-white" />
+                    </div>
+                    <CardTitle className="text-2xl">Enterprise Plan</CardTitle>
+                    <div className="text-3xl font-bold text-gray-900 mt-4">
+                      IDR 175,000<span className="text-base font-normal">/month</span>
+                    </div>
+                    <p className="text-sm text-gray-600">Per enterprise account</p>
+                    <Button 
+                      className="mt-4 bg-red-500 hover:bg-red-600 text-white"
+                      onClick={() => navigate("/contact")}
+                    >
+                      Contact Sales
+                    </Button>
+                  </CardHeader>
+                </Card>
+              </div>
+
+              {/* Features Comparison Table */}
+              <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead className="bg-gray-50">
+                      <tr>
+                        <th className="px-6 py-4 text-left text-sm font-medium text-gray-900">Features</th>
+                        <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Personal Plan</th>
+                        <th className="px-6 py-4 text-center text-sm font-medium text-gray-900">Enterprise Plan</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-200">
+                      {planFeatures.map((feature, index) => (
+                        <tr key={index} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 text-sm text-gray-900">
+                            <div className="flex items-center space-x-2">
+                              <span>{feature.name}</span>
+                              {feature.isNew && (
+                                <Badge variant="secondary" className="bg-blue-100 text-blue-600 text-xs">
+                                  New
+                                </Badge>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            {feature.personal ? (
+                              <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
+                            ) : (
+                              <X className="w-5 h-5 text-red-500 mx-auto" />
+                            )}
+                          </td>
+                          <td className="px-6 py-4 text-center">
+                            {feature.enterprise ? (
+                              <CheckCircle className="w-5 h-5 text-green-500 mx-auto" />
+                            ) : (
+                              <X className="w-5 h-5 text-red-500 mx-auto" />
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* How to make Enterprise account */}
+      {/* Additional Information */}
       <section className="py-20 bg-gray-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              How to make Enterprise account
-            </h2>
-            <p className="text-xl text-gray-600">
-              No integration is needed - just start trial and step wise
-            </p>
-          </div>
+          <h2 className="text-3xl font-bold text-gray-900 text-center mb-16">
+            Additional information
+          </h2>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card className="p-6">
+              <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mb-4">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Digital Signature</h3>
+              <p className="text-gray-600">
+                Active Employee Accounts (EA) with Enterprise Plan can sign 
+                and request signatures without limit, at additional fee. This benefit 
+                is limited to, but not limited between EA within the same company, 
+                as well as with EA from other companies and personal users.
+              </p>
+            </Card>
+
+            <Card className="p-6">
+              <div className="w-12 h-12 bg-red-500 rounded-lg flex items-center justify-center mb-4">
+                <FileText className="w-6 h-6 text-white" />
+              </div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">e-Meterai</h3>
+              <p className="text-gray-600">
+                SuratAman Business in partnership with Peruri, provides e-Meterai to boost 
+                document authority. Can be used along with Digital Signature.
+              </p>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* Tailor Made Solution */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 to-blue-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                Want SuratAman personal account
-              </h3>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm font-bold">1</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Register with your thought or company's representative</p>
-                    <p className="text-gray-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt.</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                    <span className="text-white text-sm font-bold">2</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Data will be verified SuratAman within 1x24 working hours</p>
-                  </div>
-                </div>
-              </div>
+              <h2 className="text-3xl font-bold mb-4">Tailor Made Solution</h2>
+              <p className="text-lg mb-8">
+                Offers a unique and personalized approach to product customization, allowing customers to create 
+                their ideal product that perfectly fits their needs and preferences.
+              </p>
+              <Button 
+                variant="outline" 
+                className="bg-white text-blue-600 hover:bg-gray-100"
+                onClick={() => navigate("/contact")}
+              >
+                Learn More
+              </Button>
             </div>
-            <div className="flex justify-center">
-              <div className="w-80 h-80 bg-gray-100 rounded-full flex items-center justify-center">
-                <img 
-                  src="/lovable-uploads/2ac1f5c2-3516-4748-b1e3-86c74d5c0c1c.png" 
-                  alt="Account Setup" 
-                  className="w-64 h-64 object-cover rounded-full"
-                />
-              </div>
+            <div className="relative">
+              <img 
+                src="/lovable-uploads/2ac1f5c2-3516-4748-b1e3-86c74d5c0c1c.png" 
+                alt="Tailor Made Solution" 
+                className="w-full h-64 object-cover rounded-lg"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Why choose SuratAman */}
+      {/* Why choose SuratAman Business */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Why choose SuratAman?
+              Why choose SuratAman Business?
             </h2>
             <p className="text-xl text-gray-600">
-              There are few reasons why you should use SuratAman. Here they are:
+              There are few reasons why you should use SuratAman Business. Here they are:
             </p>
           </div>
 
@@ -246,47 +295,6 @@ const EnterprisePlan = () => {
               </Card>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* Trial Offer */}
-      <section className="py-20 bg-gradient-to-r from-red-50 to-pink-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <Card className="p-8">
-            <div className="text-center">
-              <Badge className="bg-red-100 text-red-600 mb-4">Enterprise Plan</Badge>
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Enjoy a 14-day free Trial and IDR 2,100,000 / Employee account per year
-                afterward.
-              </h2>
-              <p className="text-gray-600 mb-8">
-                From basic templates to advanced document automation, we have the tools to help you accelerate your business.
-              </p>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700">Unlimited document</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700">Get audit trails standard</span>
-                </div>
-                <div className="flex items-center justify-center space-x-2">
-                  <CheckCircle className="w-5 h-5 text-green-500" />
-                  <span className="text-gray-700">Dedicated account manager</span>
-                </div>
-              </div>
-
-              <Button 
-                size="lg" 
-                className="bg-red-500 hover:bg-red-600 text-white px-8"
-                onClick={() => navigate("/demo")}
-              >
-                Start Free Trial
-              </Button>
-            </div>
-          </Card>
         </div>
       </section>
 
