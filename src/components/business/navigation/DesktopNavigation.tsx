@@ -2,7 +2,7 @@
 import { ChevronDown } from "lucide-react";
 import ProductDropdown from "./ProductDropdown";
 import CaseStudiesDropdown from "./CaseStudiesDropdown";
-import CompanyDropdown from "./CompanyDropdown";
+import { CompanyDropdown } from "./CompanyDropdown";
 import ResourceDropdown from "./ResourceDropdown";
 
 interface DesktopNavigationProps {
