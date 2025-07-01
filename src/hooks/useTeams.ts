@@ -15,7 +15,7 @@ export const useTeams = () => {
             role,
             joined_at,
             user_id,
-            profiles:user_id (
+            profiles (
               id,
               full_name,
               email
