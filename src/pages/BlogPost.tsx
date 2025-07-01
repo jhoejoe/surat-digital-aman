@@ -17,6 +17,8 @@ const BlogPost = () => {
     queryFn: async () => {
       if (!slug) throw new Error("Slug is required");
       
+      console.log("Fetching blog post with slug:", slug);
+      
       const { data, error } = await supabase
         .from("blog_posts")
         .select("*")
@@ -24,7 +26,12 @@ const BlogPost = () => {
         .eq("status", "published")
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching blog post:", error);
+        throw error;
+      }
+      
+      console.log("Fetched blog post:", data);
       return data;
     },
     enabled: !!slug,
@@ -43,6 +50,7 @@ const BlogPost = () => {
   }
 
   if (error || !post) {
+    console.error("Blog post error or not found:", error);
     return (
       <div className="min-h-screen bg-gray-50">
         <Header />

@@ -7,26 +7,25 @@ import { Button } from "@/components/ui/button";
 import { Search, Calendar, User } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useBlogPosts, useBlogCategories } from "@/hooks/useBlogPosts";
+import { usePublishedBlogPosts, useBlogCategories } from "@/hooks/useBlogPosts";
 import { Link } from "react-router-dom";
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   
-  const { data: blogPosts, isLoading } = useBlogPosts();
+  const { data: blogPosts, isLoading, error } = usePublishedBlogPosts();
   const { data: categories } = useBlogCategories();
 
-  // Filter only published posts for public view
-  const publishedPosts = blogPosts?.filter(post => post.status === 'published') || [];
+  console.log("Blog posts data:", blogPosts);
   
-  const filteredPosts = publishedPosts.filter(post => {
+  const filteredPosts = blogPosts?.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          post.content.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          (post.excerpt?.toLowerCase().includes(searchTerm.toLowerCase()));
     
     return matchesSearch;
-  });
+  }) || [];
 
   if (isLoading) {
     return (
@@ -38,6 +37,10 @@ const Blog = () => {
         <Footer />
       </div>
     );
+  }
+
+  if (error) {
+    console.error("Error loading blog posts:", error);
   }
 
   return (
@@ -93,6 +96,13 @@ const Blog = () => {
           </div>
         </div>
 
+        {/* Debug info */}
+        {blogPosts && (
+          <div className="mb-4 text-sm text-gray-500">
+            Ditemukan {blogPosts.length} artikel published
+          </div>
+        )}
+
         {/* Blog Posts Grid */}
         {filteredPosts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
@@ -101,7 +111,7 @@ const Blog = () => {
                 <CardHeader>
                   <div className="flex justify-between items-start mb-2">
                     <Badge variant="outline" className="text-xs">
-                      {post.status === 'published' ? 'Dipublikasi' : post.status}
+                      Dipublikasi
                     </Badge>
                     <div className="flex items-center text-xs text-gray-500">
                       <Calendar className="w-3 h-3 mr-1" />
@@ -139,7 +149,7 @@ const Blog = () => {
               <p className="text-gray-600">
                 {searchTerm 
                   ? `Tidak ada artikel yang cocok dengan pencarian "${searchTerm}"`
-                  : "Belum ada artikel yang dipublikasi."
+                  : "Belum ada artikel yang dipublikasi. Silakan buat artikel baru di dashboard admin."
                 }
               </p>
             </div>

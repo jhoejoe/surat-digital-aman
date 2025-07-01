@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,21 +25,49 @@ export interface BlogCategory {
   created_at: string;
 }
 
+// For admin - fetch all blog posts
 export const useBlogPosts = () => {
   const { user } = useAuth();
   
   return useQuery({
     queryKey: ["blogPosts"],
     queryFn: async () => {
+      console.log("Fetching blog posts for admin...");
       const { data, error } = await supabase
         .from("blog_posts")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching blog posts:", error);
+        throw error;
+      }
+      console.log("Fetched blog posts:", data);
       return data as BlogPost[];
     },
     enabled: !!user,
+  });
+};
+
+// For public - fetch only published blog posts
+export const usePublishedBlogPosts = () => {
+  return useQuery({
+    queryKey: ["publishedBlogPosts"],
+    queryFn: async () => {
+      console.log("Fetching published blog posts...");
+      const { data, error } = await supabase
+        .from("blog_posts")
+        .select("*")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+
+      if (error) {
+        console.error("Error fetching published blog posts:", error);
+        throw error;
+      }
+      console.log("Fetched published blog posts:", data);
+      return data as BlogPost[];
+    },
   });
 };
 
@@ -78,6 +105,7 @@ export const useCreateBlogPost = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["blogPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["publishedBlogPosts"] });
       toast.success("Blog post berhasil dibuat!");
     },
     onError: (error) => {
@@ -104,6 +132,7 @@ export const useUpdateBlogPost = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["blogPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["publishedBlogPosts"] });
       toast.success("Blog post berhasil diperbarui!");
     },
     onError: (error) => {
@@ -127,6 +156,7 @@ export const useDeleteBlogPost = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["blogPosts"] });
+      queryClient.invalidateQueries({ queryKey: ["publishedBlogPosts"] });
       toast.success("Blog post berhasil dihapus!");
     },
     onError: (error) => {
