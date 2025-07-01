@@ -1,4 +1,3 @@
-
 import { 
   FileText, 
   Building, 
@@ -60,10 +59,10 @@ export const caseStudies = [
 ];
 
 export const companyLinks = [
-  { title: "About Us", icon: Building },
-  { title: "Career", icon: Users },
-  { title: "Life at SuratAman", icon: Globe },
-  { title: "FAQ", icon: FileText }
+  { title: "About Us", icon: Shield, href: "/business/about-us" },
+  { title: "Career", icon: FileText, href: "/business/career" },
+  { title: "Life at SuratAman", icon: Shield, href: "/business/life-at-surataman" },
+  { title: "FAQ", icon: FileText, href: "/business/faq" }
 ];
 
 export const resourceLinks = [
