@@ -1,3 +1,4 @@
+
 import { 
   FileText, 
   Building, 
@@ -47,21 +48,21 @@ export const productFeatures = [
 ];
 
 export const caseStudies = [
-  { title: "Case Study", icon: FileText },
-  { title: "Fintech", icon: Building },
-  { title: "Insurance", icon: Shield },
-  { title: "Healthcare", icon: Users },
-  { title: "Hospitality", icon: Globe },
-  { title: "Oil & Gas", icon: Zap },
-  { title: "Education", icon: FileText },
-  { title: "Banking", icon: Building },
-  { title: "HR & Outsourcing", icon: Users }
+  { title: "Case Study", icon: FileText, link: "/business/case-studies" },
+  { title: "Fintech", icon: Building, link: "/business/case-studies/fintech" },
+  { title: "Insurance", icon: Shield, link: "/business/case-studies/insurance" },
+  { title: "Healthcare", icon: Users, link: "/business/case-studies/healthcare" },
+  { title: "Hospitality", icon: Globe, link: "/business/case-studies/hospitality" },
+  { title: "Oil & Gas", icon: Zap, link: "/business/case-studies/oil-gas" },
+  { title: "Education", icon: FileText, link: "/business/case-studies/education" },
+  { title: "Banking", icon: Building, link: "/business/case-studies/banking" },
+  { title: "HR & Outsourcing", icon: Users, link: "/business/case-studies/hr-outsourcing" }
 ];
 
 export const companyLinks = [
   { title: "About Us", icon: Building },
   { title: "Career", icon: Users },
-  { title: "Life at Privy", icon: Globe },
+  { title: "Life at SuratAman", icon: Globe },
   { title: "FAQ", icon: FileText }
 ];
 

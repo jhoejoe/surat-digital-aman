@@ -23,6 +23,10 @@ import OnPremise from "./pages/OnPremise";
 import CustomerOnBoard from "./pages/CustomerOnBoard";
 import APIIntegration from "./pages/APIIntegration";
 import DigitalCertificate from "./pages/DigitalCertificate";
+import CaseStudyFintech from "./pages/CaseStudyFintech";
+import CaseStudyInsurance from "./pages/CaseStudyInsurance";
+import CaseStudyHealthcare from "./pages/CaseStudyHealthcare";
+import CaseStudyHospitality from "./pages/CaseStudyHospitality";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +57,10 @@ const App = () => (
             <Route path="/business/customer-on-board" element={<CustomerOnBoard />} />
             <Route path="/business/api-integration" element={<APIIntegration />} />
             <Route path="/business/digital-certificate" element={<DigitalCertificate />} />
+            <Route path="/business/case-studies/fintech" element={<CaseStudyFintech />} />
+            <Route path="/business/case-studies/insurance" element={<CaseStudyInsurance />} />
+            <Route path="/business/case-studies/healthcare" element={<CaseStudyHealthcare />} />
+            <Route path="/business/case-studies/hospitality" element={<CaseStudyHospitality />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
