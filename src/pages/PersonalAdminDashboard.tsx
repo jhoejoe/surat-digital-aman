@@ -1,6 +1,5 @@
 
 import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -39,6 +38,7 @@ const PersonalAdminDashboard = () => {
       <Header />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header Section */}
         <div className="flex items-center justify-between mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
@@ -47,7 +47,7 @@ const PersonalAdminDashboard = () => {
             <p className="text-gray-600 mt-1">Kelola dokumen dan aktivitas Anda</p>
           </div>
           <div className="flex items-center space-x-4">
-            <Button className="bg-red-500 hover:bg-red-600 text-white">
+            <Button className="bg-red-600 hover:bg-red-700 text-white">
               <Upload className="w-4 h-4 mr-2" />
               Upload dokumen
             </Button>
@@ -59,92 +59,97 @@ const PersonalAdminDashboard = () => {
 
         <div className="flex gap-6">
           {/* Sidebar */}
-          <div className="w-64 space-y-2">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-4">Akun Personal</h3>
-              <nav className="space-y-1">
+          <div className="w-64 space-y-4">
+            {/* Account Section */}
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Akun Personal</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1">
                 <button
                   onClick={() => setActiveTab("dashboard")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-center ${
                     activeTab === "dashboard" 
-                      ? "bg-blue-50 text-blue-700 border-l-4 border-blue-500" 
+                      ? "bg-blue-50 text-blue-700 font-medium" 
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  <FileText className="w-4 h-4 inline mr-3" />
+                  <FileText className="w-4 h-4 mr-3" />
                   Perlu tindakan
                 </button>
                 <button
                   onClick={() => setActiveTab("inbox")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-center ${
                     activeTab === "inbox" 
-                      ? "bg-blue-50 text-blue-700 border-l-4 border-blue-500" 
+                      ? "bg-blue-50 text-blue-700 font-medium" 
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  <FileText className="w-4 h-4 inline mr-3" />
+                  <FileText className="w-4 h-4 mr-3" />
                   Kotak masuk
                 </button>
                 <button
                   onClick={() => setActiveTab("sent")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-center ${
                     activeTab === "sent" 
-                      ? "bg-blue-50 text-blue-700 border-l-4 border-blue-500" 
+                      ? "bg-blue-50 text-blue-700 font-medium" 
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  <FileText className="w-4 h-4 inline mr-3" />
+                  <FileText className="w-4 h-4 mr-3" />
                   Terkirim
                 </button>
                 <button
                   onClick={() => setActiveTab("drafts")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-center ${
                     activeTab === "drafts" 
-                      ? "bg-blue-50 text-blue-700 border-l-4 border-blue-500" 
+                      ? "bg-blue-50 text-blue-700 font-medium" 
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  <FileText className="w-4 h-4 inline mr-3" />
+                  <FileText className="w-4 h-4 mr-3" />
                   Draf
                 </button>
                 <button
                   onClick={() => setActiveTab("completed")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-center ${
                     activeTab === "completed" 
-                      ? "bg-blue-50 text-blue-700 border-l-4 border-blue-500" 
+                      ? "bg-blue-50 text-blue-700 font-medium" 
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  <FileText className="w-4 h-4 inline mr-3" />
+                  <FileText className="w-4 h-4 mr-3" />
                   Selesai
                 </button>
                 <button
                   onClick={() => setActiveTab("archive")}
-                  className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                  className={`w-full text-left px-3 py-2 rounded-md transition-colors flex items-center ${
                     activeTab === "archive" 
-                      ? "bg-blue-50 text-blue-700 border-l-4 border-blue-500" 
+                      ? "bg-blue-50 text-blue-700 font-medium" 
                       : "text-gray-700 hover:bg-gray-50"
                   }`}
                 >
-                  <FileText className="w-4 h-4 inline mr-3" />
+                  <FileText className="w-4 h-4 mr-3" />
                   Arsip
                 </button>
-              </nav>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Personal Plan Info */}
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h4 className="font-semibold text-gray-900 mb-2">Personal plan</h4>
-              <p className="text-blue-600 font-medium">Aktif</p>
-              <p className="text-sm text-gray-500">Berlaku hingga 18 Jul 2025</p>
-            </div>
+            <Card>
+              <CardContent className="pt-6">
+                <h4 className="font-semibold text-gray-900 mb-2">Personal plan</h4>
+                <p className="text-blue-600 font-medium mb-1">Aktif</p>
+                <p className="text-sm text-gray-500">Berlaku hingga 18 Jul 2025</p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Main Content */}
           <div className="flex-1">
-            <div className="bg-white rounded-lg shadow-sm">
-              {/* Header Controls */}
-              <div className="border-b border-gray-200 p-4">
+            <Card>
+              {/* Controls Header */}
+              <div className="border-b border-gray-200 p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center space-x-4">
                     <div className="relative">
@@ -152,7 +157,7 @@ const PersonalAdminDashboard = () => {
                       <input
                         type="text"
                         placeholder="Cari judul..."
-                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent w-64"
                       />
                     </div>
                     <select 
@@ -177,34 +182,34 @@ const PersonalAdminDashboard = () => {
                   </div>
                   
                   {activeTab === "dashboard" && (
-                    <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg">
-                      <Bell className="w-4 h-4 inline mr-2" />
-                      Notifikasi: Tunjukkan notifikasi belum dibaca
+                    <div className="bg-blue-50 text-blue-700 px-4 py-2 rounded-lg flex items-center">
+                      <Bell className="w-4 h-4 mr-2" />
+                      <span className="text-sm">Notifikasi: Tunjukkan notifikasi belum dibaca</span>
                     </div>
                   )}
                 </div>
               </div>
 
-              {/* Document List */}
-              <div className="p-4">
+              {/* Content Area */}
+              <div className="p-6">
                 {activeTab === "dashboard" && (
-                  <div className="space-y-4">
-                    <div className="text-center py-8">
-                      <FileText className="w-16 h-16 text-blue-500 mx-auto mb-4" />
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                        Hebat! Semua dokumen telah diselesaikan
-                      </h3>
-                      <p className="text-gray-600">
-                        Dokumen yang memerlukan tindakan akan ditampilkan di sini
-                      </p>
+                  <div className="text-center py-12">
+                    <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <FileText className="w-10 h-10 text-blue-500" />
                     </div>
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                      Hebat! Semua dokumen telah diselesaikan
+                    </h3>
+                    <p className="text-gray-500">
+                      Dokumen yang memerlukan tindakan akan ditampilkan di sini
+                    </p>
                   </div>
                 )}
 
                 {activeTab !== "dashboard" && (
                   <div className="space-y-4">
                     {/* Document Table Header */}
-                    <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-700 border-b pb-2">
+                    <div className="grid grid-cols-12 gap-4 text-sm font-medium text-gray-700 border-b pb-3">
                       <div className="col-span-6">Nama dokumen</div>
                       <div className="col-span-2">Penerima</div>
                       <div className="col-span-2">Diunggah pada</div>
@@ -213,10 +218,10 @@ const PersonalAdminDashboard = () => {
 
                     {/* Document Rows */}
                     {filteredDocuments.map((doc) => (
-                      <div key={doc.id} className="grid grid-cols-12 gap-4 py-3 border-b hover:bg-gray-50 transition-colors">
+                      <div key={doc.id} className="grid grid-cols-12 gap-4 py-4 border-b hover:bg-gray-50 transition-colors">
                         <div className="col-span-6 flex items-center">
-                          <FileText className="w-4 h-4 text-gray-400 mr-3" />
-                          <span className="text-gray-900">{doc.file_name}</span>
+                          <FileText className="w-5 h-5 text-gray-400 mr-3" />
+                          <span className="text-gray-900 font-medium">{doc.file_name}</span>
                         </div>
                         <div className="col-span-2 flex items-center">
                           <Users className="w-4 h-4 text-gray-400 mr-2" />
@@ -237,8 +242,10 @@ const PersonalAdminDashboard = () => {
                     ))}
 
                     {filteredDocuments.length === 0 && (
-                      <div className="text-center py-8">
-                        <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                      <div className="text-center py-12">
+                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                          <FileText className="w-8 h-8 text-gray-400" />
+                        </div>
                         <p className="text-gray-500">Tidak ada dokumen ditemukan</p>
                       </div>
                     )}
@@ -247,18 +254,20 @@ const PersonalAdminDashboard = () => {
 
                 {/* Pagination */}
                 {filteredDocuments.length > 0 && (
-                  <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                  <div className="flex items-center justify-between mt-8 pt-6 border-t">
                     <p className="text-sm text-gray-600">
                       Halaman 1 dari 1
                     </p>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-gray-600">Tampilkan baris</span>
-                      <select className="border border-gray-300 rounded px-2 py-1 text-sm">
-                        <option>15</option>
-                        <option>25</option>
-                        <option>50</option>
-                      </select>
-                      <div className="flex space-x-1">
+                    <div className="flex items-center space-x-4">
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">Tampilkan baris</span>
+                        <select className="border border-gray-300 rounded px-2 py-1 text-sm">
+                          <option>15</option>
+                          <option>25</option>
+                          <option>50</option>
+                        </select>
+                      </div>
+                      <div className="flex space-x-2">
                         <Button variant="outline" size="sm">Pertama</Button>
                         <Button variant="outline" size="sm">Terakhir</Button>
                       </div>
@@ -266,10 +275,10 @@ const PersonalAdminDashboard = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </Card>
           </div>
 
-          {/* Right Sidebar - Process Queue */}
+          {/* Process Queue Sidebar */}
           {activeTab === "dashboard" && (
             <div className="w-80">
               <Card>
@@ -278,8 +287,8 @@ const PersonalAdminDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="bg-blue-50 rounded-lg p-3">
-                      <h4 className="font-medium text-blue-900 mb-2">e-Meterai</h4>
+                    <div className="bg-blue-50 rounded-lg p-4">
+                      <h4 className="font-medium text-blue-900 mb-3">e-Meterai</h4>
                       <div className="space-y-2">
                         {[
                           "pernyataan_hak_cipta_cek_lisensi",
@@ -288,9 +297,9 @@ const PersonalAdminDashboard = () => {
                           "pernyataan_hak_cipta",
                           "SURAT KUASA KHUSUS Sdr. JOHANI FAUZI"
                         ].map((item, index) => (
-                          <div key={index} className="flex items-center justify-between bg-white rounded p-2">
-                            <span className="text-sm text-gray-700">{item}</span>
-                            <Badge className="bg-green-100 text-green-800 text-xs">Selesai</Badge>
+                          <div key={index} className="flex items-center justify-between bg-white rounded-md p-3 shadow-sm">
+                            <span className="text-sm text-gray-700 truncate mr-2">{item}</span>
+                            <Badge className="bg-green-100 text-green-800 text-xs shrink-0">Selesai</Badge>
                           </div>
                         ))}
                       </div>
