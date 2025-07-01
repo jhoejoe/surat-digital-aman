@@ -1,21 +1,12 @@
 
 import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { 
-  FileText,
-  ChevronDown,
-  Menu,
-  X
-} from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
-import ProductDropdown from "./navigation/ProductDropdown";
-import CaseStudiesDropdown from "./navigation/CaseStudiesDropdown";
-import CompanyDropdown from "./navigation/CompanyDropdown";
-import ResourceDropdown from "./navigation/ResourceDropdown";
+import { FileText, Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import DesktopNavigation from "./navigation/DesktopNavigation";
+import HeaderActions from "./navigation/HeaderActions";
 import MobileMenu from "./navigation/MobileMenu";
 
 const BusinessHeader = () => {
-  const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
 
@@ -40,77 +31,14 @@ const BusinessHeader = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden lg:flex items-center space-x-8">
-            {/* Product Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown('product')}
-                className="flex items-center text-gray-700 hover:text-red-500 transition-colors"
-              >
-                Product <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              <ProductDropdown 
-                isActive={activeDropdown === 'product'} 
-                onClose={closeDropdowns}
-              />
-            </div>
-
-            {/* Case Studies Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown('cases')}
-                className="flex items-center text-gray-700 hover:text-red-500 transition-colors"
-              >
-                Case Studies <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              <CaseStudiesDropdown 
-                isActive={activeDropdown === 'cases'} 
-                onClose={closeDropdowns}
-              />
-            </div>
-
-            {/* Company Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown('company')}
-                className="flex items-center text-gray-700 hover:text-red-500 transition-colors"
-              >
-                Company <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              <CompanyDropdown 
-                isActive={activeDropdown === 'company'} 
-                onClose={closeDropdowns}
-              />
-            </div>
-
-            {/* Resource Dropdown */}
-            <div className="relative">
-              <button
-                onClick={() => toggleDropdown('resource')}
-                className="flex items-center text-gray-700 hover:text-red-500 transition-colors"
-              >
-                Resource <ChevronDown className="ml-1 h-4 w-4" />
-              </button>
-              <ResourceDropdown 
-                isActive={activeDropdown === 'resource'} 
-                onClose={closeDropdowns}
-              />
-            </div>
-          </nav>
+          <DesktopNavigation 
+            activeDropdown={activeDropdown}
+            toggleDropdown={toggleDropdown}
+            closeDropdowns={closeDropdowns}
+          />
 
           {/* Right Side Navigation */}
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="text-gray-700 hover:text-red-500 transition-colors">
-              Personal
-            </Link>
-            <span className="text-red-500 font-medium">Business</span>
-            <Button variant="outline" onClick={() => navigate("/auth")}>
-              Sign In
-            </Button>
-            <Button className="bg-red-500 hover:bg-red-600">
-              Contact Sales
-            </Button>
-          </div>
+          <HeaderActions />
 
           {/* Mobile menu button */}
           <button
