@@ -1,73 +1,199 @@
-# Welcome to your Lovable project
 
-## Project info
+# Document Verification System
 
-**URL**: https://lovable.dev/projects/515efacc-8b08-4d2a-b892-3b962260d2b7
+Sistem verifikasi dokumen digital yang aman dan terintegrasi dengan teknologi blockchain untuk memastikan keaslian dan integritas dokumen.
 
-## How can I edit this code?
+## 🚀 Fitur Utama
 
-There are several ways of editing your application.
+- **Verifikasi Dokumen Digital**: Upload dan verifikasi keaslian dokumen
+- **Dashboard Admin**: Kelola dokumen, pengguna, dan sistem audit
+- **Audit Trail**: Lacak semua aktivitas sistem
+- **Integrasi API**: Dukungan untuk integrasi dengan sistem eksternal
+- **Sertifikat Digital**: Generate dan kelola sertifikat verifikasi
+- **Real-time Updates**: Update status dokumen secara real-time
 
-**Use Lovable**
+## 🛠️ Teknologi
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/515efacc-8b08-4d2a-b892-3b962260d2b7) and start prompting.
+- **Frontend**: React 18 + TypeScript + Vite
+- **UI Framework**: Tailwind CSS + shadcn/ui
+- **Backend**: Supabase (Database, Auth, Storage)
+- **State Management**: TanStack React Query
+- **Icons**: Lucide React
+- **Charts**: Recharts
 
-Changes made via Lovable will be committed automatically to this repo.
+## 📋 Prasyarat
 
-**Use your preferred IDE**
+- Node.js (v18 atau lebih baru)
+- npm atau yarn
+- Git
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## 🏗️ Instalasi & Setup
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 1. Clone Repository
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+```bash
 git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
 cd <YOUR_PROJECT_NAME>
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 2. Install Dependencies
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+```bash
+npm install
+```
+
+### 3. Setup Environment Variables
+
+Buat file `.env.local` di root project:
+
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=your_supabase_project_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
+
+### 4. Jalankan Development Server
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Aplikasi akan berjalan di `http://localhost:5173`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## 📁 Struktur Project
 
-**Use GitHub Codespaces**
+```
+src/
+├── components/           # Komponen UI
+│   ├── ui/              # shadcn/ui components
+│   ├── Admin*.tsx       # Komponen admin dashboard
+│   ├── Document*.tsx    # Komponen terkait dokumen
+│   └── ...
+├── pages/               # Halaman aplikasi
+│   ├── AdminDashboard.tsx
+│   ├── Auth.tsx
+│   ├── KirimSurat.tsx
+│   └── ...
+├── hooks/               # Custom React hooks
+│   ├── useDocuments.ts
+│   ├── useAuth.ts
+│   └── ...
+├── integrations/        # Konfigurasi eksternal
+│   └── supabase/
+├── types/               # TypeScript type definitions
+└── utils/               # Utility functions
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## 🔧 Konfigurasi Database (Supabase)
 
-## What technologies are used for this project?
+### Tables Schema
 
-This project is built with:
+- `documents` - Menyimpan data dokumen
+- `profiles` - Profile pengguna
+- `audit_trail` - Log aktivitas sistem
+- `certificates` - Sertifikat verifikasi
+- `verification_results` - Hasil verifikasi
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Setup RLS (Row Level Security)
 
-## How can I deploy this project?
+Semua tabel menggunakan RLS untuk keamanan data. Pastikan policies sudah dikonfigurasi dengan benar.
 
-Simply open [Lovable](https://lovable.dev/projects/515efacc-8b08-4d2a-b892-3b962260d2b7) and click on Share -> Publish.
+## 🎯 Penggunaan
 
-## Can I connect a custom domain to my Lovable project?
+### Untuk User Biasa
 
-Yes, you can!
+1. **Upload Dokumen**: Gunakan halaman "Kirim Surat"
+2. **Cek Status**: Monitor progress di "Cek Progress"
+3. **Verifikasi**: Cek keaslian dokumen di "Cek Keaslian"
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Untuk Admin
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+1. **Login Admin**: Akses `/admin` dengan kredensial admin
+2. **Kelola Dokumen**: Review dan ubah status dokumen
+3. **Monitor Analytics**: Lihat statistik sistem
+4. **Audit Trail**: Pantau aktivitas pengguna
+
+## 🔌 API Integration
+
+Sistem mendukung integrasi dengan API eksternal melalui:
+
+```typescript
+// Contoh penggunaan API Integration
+import { ApiIntegrationService } from '@/utils/apiIntegration';
+
+const apiService = new ApiIntegrationService(config);
+const result = await apiService.verifyDocument(documentData);
+```
+
+## 📊 Monitoring & Logging
+
+- **Console Logs**: Gunakan browser dev tools
+- **Supabase Dashboard**: Monitor database dan auth
+- **Audit Trail**: Lacak aktivitas melalui dashboard admin
+
+## 🚀 Deployment
+
+### Deploy ke Lovable
+
+1. Klik tombol "Publish" di Lovable editor
+2. Aplikasi akan deploy otomatis
+
+### Deploy Manual
+
+1. Build aplikasi:
+```bash
+npm run build
+```
+
+2. Upload folder `dist/` ke hosting provider
+
+## 🔗 Custom Domain
+
+Untuk menggunakan domain custom:
+
+1. Buka Project > Settings > Domains di Lovable
+2. Ikuti instruksi untuk connect domain
+3. Memerlukan Lovable paid plan
+
+## 🤝 Kontribusi
+
+1. Fork repository
+2. Buat feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push ke branch (`git push origin feature/AmazingFeature`)
+5. Buat Pull Request
+
+## 📝 Scripts
+
+- `npm run dev` - Jalankan development server
+- `npm run build` - Build untuk production
+- `npm run preview` - Preview build lokal
+- `npm run lint` - Check linting
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **Build Error**: Pastikan semua dependencies terinstall
+2. **Auth Error**: Check konfigurasi Supabase
+3. **Database Error**: Verifikasi RLS policies
+
+### Getting Help
+
+- [Lovable Documentation](https://docs.lovable.dev/)
+- [Lovable Discord Community](https://discord.com/channels/1119885301872070706/1280461670979993613)
+- [Supabase Documentation](https://supabase.com/docs)
+
+## 📄 License
+
+Copyright © 2025. All rights reserved.
+
+## 🔗 Links
+
+- **Live Demo**: [Your App URL]
+- **Lovable Project**: https://lovable.dev/projects/515efacc-8b08-4d2a-b892-3b962260d2b7
+- **GitHub**: [Your GitHub Repository]
+
+---
+
+> 💡 **Tip**: Gunakan Lovable editor untuk development yang lebih cepat dan efisien!
