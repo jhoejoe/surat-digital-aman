@@ -6,16 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
-import { Plus, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { useBlogPosts, useCreateBlogPost, useUpdateBlogPost, useDeleteBlogPost, useBlogCategories, useCreateBlogCategory, BlogPost } from "@/hooks/useBlogPosts";
 import { useForm } from "react-hook-form";
+import BlogEditor from "./BlogEditor";
 
 const AdminBlog = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [showEditor, setShowEditor] = useState(false);
   
   const { data: blogPosts, isLoading } = useBlogPosts();
   const { data: categories } = useBlogCategories();
@@ -24,10 +25,19 @@ const AdminBlog = () => {
   const deletePost = useDeleteBlogPost();
   const createCategory = useCreateBlogCategory();
 
-  const { register, handleSubmit, reset, setValue, watch } = useForm();
   const { register: registerCategory, handleSubmit: handleSubmitCategory, reset: resetCategory } = useForm();
 
-  const onSubmitPost = (data: any) => {
+  const handleCreatePost = () => {
+    setEditingPost(null);
+    setShowEditor(true);
+  };
+
+  const handleEditPost = (post: BlogPost) => {
+    setEditingPost(post);
+    setShowEditor(true);
+  };
+
+  const handleSubmitPost = (data: any) => {
     const postData = {
       ...data,
       slug: data.title.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
@@ -40,8 +50,12 @@ const AdminBlog = () => {
       createPost.mutate(postData);
     }
     
-    reset();
-    setIsCreateDialogOpen(false);
+    setShowEditor(false);
+    setEditingPost(null);
+  };
+
+  const handleCancelEdit = () => {
+    setShowEditor(false);
     setEditingPost(null);
   };
 
@@ -54,15 +68,6 @@ const AdminBlog = () => {
     createCategory.mutate(categoryData);
     resetCategory();
     setIsCategoryDialogOpen(false);
-  };
-
-  const handleEdit = (post: BlogPost) => {
-    setEditingPost(post);
-    setValue('title', post.title);
-    setValue('content', post.content);
-    setValue('excerpt', post.excerpt || '');
-    setValue('status', post.status);
-    setIsCreateDialogOpen(true);
   };
 
   const handleDelete = (id: string) => {
@@ -82,6 +87,17 @@ const AdminBlog = () => {
 
   if (isLoading) {
     return <div className="flex justify-center p-8">Loading...</div>;
+  }
+
+  if (showEditor) {
+    return (
+      <BlogEditor
+        post={editingPost}
+        onSubmit={handleSubmitPost}
+        onCancel={handleCancelEdit}
+        isLoading={createPost.isPending || updatePost.isPending}
+      />
+    );
   }
 
   return (
@@ -124,63 +140,10 @@ const AdminBlog = () => {
             </DialogContent>
           </Dialog>
 
-          <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Post Baru
-              </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingPost ? 'Edit Post' : 'Buat Post Baru'}</DialogTitle>
-              </DialogHeader>
-              <form onSubmit={handleSubmit(onSubmitPost)} className="space-y-4">
-                <div>
-                  <Label htmlFor="title">Judul</Label>
-                  <Input
-                    id="title"
-                    {...register("title", { required: true })}
-                    placeholder="Masukkan judul post"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="excerpt">Excerpt</Label>
-                  <Textarea
-                    id="excerpt"
-                    {...register("excerpt")}
-                    placeholder="Ringkasan singkat post"
-                    rows={2}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="content">Konten</Label>
-                  <Textarea
-                    id="content"
-                    {...register("content", { required: true })}
-                    placeholder="Tulis konten blog di sini..."
-                    rows={8}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="status">Status</Label>
-                  <Select onValueChange={(value) => setValue("status", value)} defaultValue="draft">
-                    <SelectTrigger>
-                      <SelectValue placeholder="Pilih status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="draft">Draft</SelectItem>
-                      <SelectItem value="published">Published</SelectItem>
-                      <SelectItem value="archived">Archived</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button type="submit" disabled={createPost.isPending || updatePost.isPending}>
-                  {createPost.isPending || updatePost.isPending ? "Menyimpan..." : editingPost ? "Update Post" : "Buat Post"}
-                </Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+          <Button onClick={handleCreatePost}>
+            <Plus className="w-4 h-4 mr-2" />
+            Post Baru
+          </Button>
         </div>
       </div>
 
@@ -233,7 +196,7 @@ const AdminBlog = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleEdit(post)}
+                      onClick={() => handleEditPost(post)}
                     >
                       <Edit className="w-4 h-4" />
                     </Button>

@@ -122,8 +122,8 @@ const BlogPost = () => {
         <Card>
           <CardContent className="p-8">
             <div 
-              className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900"
-              dangerouslySetInnerHTML={{ __html: post.content.replace(/\n/g, '<br>') }}
+              className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-p:text-gray-700 prose-a:text-blue-600 prose-strong:text-gray-900 prose-ul:text-gray-700 prose-ol:text-gray-700 prose-blockquote:text-gray-700 prose-blockquote:border-l-blue-500"
+              dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </CardContent>
         </Card>
