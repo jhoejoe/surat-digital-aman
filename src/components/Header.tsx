@@ -1,6 +1,6 @@
 
 import { Button } from "@/components/ui/button";
-import { FileText, Settings, LogOut, User, Shield } from "lucide-react";
+import { FileText, Settings, LogOut, User, Shield, Building2 } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -61,15 +61,35 @@ const Header = () => {
                   Halo, {profile?.full_name || user.email}
                 </span>
                 {profile?.role === 'admin' && (
-                  <Button
-                    variant="default"
-                    size="sm"
-                    onClick={() => navigate("/admin")}
-                    className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Shield className="h-4 w-4" />
-                    <span>Dashboard Admin</span>
-                  </Button>
+                  <div className="flex items-center space-x-2">
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => navigate("/admin")}
+                      className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
+                    >
+                      <Shield className="h-4 w-4" />
+                      <span>Admin</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate("/admin/personal")}
+                      className="flex items-center space-x-2"
+                    >
+                      <User className="h-4 w-4" />
+                      <span>Personal</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => navigate("/admin/business")}
+                      className="flex items-center space-x-2"
+                    >
+                      <Building2 className="h-4 w-4" />
+                      <span>Business</span>
+                    </Button>
+                  </div>
                 )}
                 <Button
                   variant="outline"

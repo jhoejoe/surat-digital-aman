@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -11,6 +12,8 @@ import CekProgress from "./pages/CekProgress";
 import Bantuan from "./pages/Bantuan";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
+import PersonalAdminDashboard from "./pages/PersonalAdminDashboard";
+import BusinessAdminDashboard from "./pages/BusinessAdminDashboard";
 import Demo from "./pages/Demo";
 import Contact from "./pages/Contact";
 import Blog from "./pages/Blog";
@@ -51,6 +54,8 @@ const App = () => (
             <Route path="/bantuan" element={<Bantuan />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminDashboard />} />
+            <Route path="/admin/personal" element={<PersonalAdminDashboard />} />
+            <Route path="/admin/business" element={<BusinessAdminDashboard />} />
             <Route path="/demo" element={<Demo />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/blog" element={<Blog />} />
