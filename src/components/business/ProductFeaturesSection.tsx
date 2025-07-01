@@ -23,7 +23,8 @@ const ProductFeaturesSection = () => {
     {
       icon: Building,
       title: "Enterprise Plan",
-      description: "Solusi khusus untuk perusahaan besar dengan kebutuhan volume tinggi"
+      description: "Solusi khusus untuk perusahaan besar dengan kebutuhan volume tinggi",
+      link: "/business/enterprise-plan"
     },
     {
       icon: Shield,

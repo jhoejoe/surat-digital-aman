@@ -18,6 +18,7 @@ import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Business from "./pages/Business";
 import EMeterai from "./pages/EMeterai";
+import EnterprisePlan from "./pages/EnterprisePlan";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
             <Route path="/blog/:slug" element={<BlogPost />} />
             <Route path="/business" element={<Business />} />
             <Route path="/business/e-meterai" element={<EMeterai />} />
+            <Route path="/business/enterprise-plan" element={<EnterprisePlan />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
