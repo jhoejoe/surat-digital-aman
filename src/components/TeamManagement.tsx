@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -284,7 +285,7 @@ const TeamManagement = () => {
                               </span>
                             </div>
                           </TableCell>
-                          <TableCell>{member.profiles?.email}</TableCell>
+                          <TableCell>{member.profiles?.email || "Email tidak tersedia"}</TableCell>
                           <TableCell>{getRoleBadge(member.role)}</TableCell>
                           <TableCell>
                             {new Date(member.joined_at || member.created_at).toLocaleDateString('id-ID')}
