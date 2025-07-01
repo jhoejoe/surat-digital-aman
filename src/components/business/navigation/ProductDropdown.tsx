@@ -14,6 +14,13 @@ const ProductDropdown = ({ isActive, onClose }: ProductDropdownProps) => {
 
   if (!isActive) return null;
 
+  const handleFeatureClick = (feature: typeof productFeatures[0]) => {
+    if (feature.link) {
+      navigate(feature.link);
+      onClose();
+    }
+  };
+
   return (
     <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50 p-4">
       <div className="grid grid-cols-1 gap-3">
@@ -21,12 +28,7 @@ const ProductDropdown = ({ isActive, onClose }: ProductDropdownProps) => {
           <div 
             key={index} 
             className="flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-lg cursor-pointer"
-            onClick={() => {
-              if (feature.link) {
-                navigate(feature.link);
-                onClose();
-              }
-            }}
+            onClick={() => handleFeatureClick(feature)}
           >
             <feature.icon className="h-5 w-5 text-red-500" />
             <div>
@@ -43,7 +45,14 @@ const ProductDropdown = ({ isActive, onClose }: ProductDropdownProps) => {
           </div>
           <div>
             <p className="text-sm font-medium text-red-900">Punya kebutuhan khusus?</p>
-            <Button variant="link" className="p-0 h-auto text-red-600 hover:text-red-700">
+            <Button 
+              variant="link" 
+              className="p-0 h-auto text-red-600 hover:text-red-700"
+              onClick={() => {
+                navigate("/contact");
+                onClose();
+              }}
+            >
               Pelajari lebih lanjut →
             </Button>
           </div>
