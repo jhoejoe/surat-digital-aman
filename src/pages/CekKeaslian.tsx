@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,27 +67,27 @@ const CekKeaslian = () => {
     setIsVerifying(true);
     
     try {
-      console.log("Starting verification process...");
+      console.log("Starting real PDF signature verification process...");
       
-      // Calculate file hash
+      // Step 1: Calculate file hash
       const fileHash = await calculateFileHash(selectedFile);
       console.log("File hash calculated:", fileHash);
       
-      // Generate ticket number and QR code
+      // Step 2: Generate ticket number and QR code
       const ticketNumber = generateTicketNumber();
       const qrCode = generateQRCode();
       
       console.log("Generated ticket number:", ticketNumber);
       console.log("Generated QR code:", qrCode);
       
-      // Create document record for verification
+      // Step 3: Create document record
       const documentData = {
         ticket_number: ticketNumber,
         file_name: selectedFile.name,
         file_size: selectedFile.size,
         file_hash: fileHash,
-        subject: "Verifikasi Keaslian Dokumen",
-        recipient: "Sistem Verifikasi",
+        subject: "Verifikasi Tanda Tangan Digital",
+        recipient: "Sistem Verifikasi PDF",
         message: null,
         qr_code: qrCode,
         status: "PROCESSING" as const,
@@ -95,54 +96,75 @@ const CekKeaslian = () => {
       const document = await createDocument.mutateAsync(documentData);
       console.log("Document created:", document);
       
-      // Call Supabase Edge Function for real PDF verification
-      console.log("Calling verify-document Edge Function...");
+      // Step 4: Upload PDF file to Supabase Storage
+      const fileExtension = selectedFile.name.split('.').pop();
+      const fileName = `${document.id}.${fileExtension}`;
+      const filePath = `documents/${fileName}`;
       
-      const { data: verificationData, error: verificationError } = await supabase.functions.invoke('verify-document', {
+      console.log("Uploading file to storage:", filePath);
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(filePath, selectedFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error("File upload error:", uploadError);
+        throw new Error(`Failed to upload file: ${uploadError.message}`);
+      }
+
+      console.log("File uploaded successfully:", uploadData);
+      
+      // Step 5: Call the new PDF signature verification Edge Function
+      console.log("Calling verify-pdf-signature Edge Function...");
+      
+      const { data: verificationData, error: verificationError } = await supabase.functions.invoke('verify-pdf-signature', {
         body: {
-          file_hash: fileHash,
+          file_path: filePath,
           file_name: selectedFile.name,
           document_id: document.id
         }
       });
 
       if (verificationError) {
-        console.error("Edge Function error:", verificationError);
-        throw new Error(`Verification failed: ${verificationError.message}`);
+        console.error("PDF signature verification error:", verificationError);
+        throw new Error(`PDF signature verification failed: ${verificationError.message}`);
       }
 
-      console.log("Edge Function response:", verificationData);
+      console.log("PDF signature verification completed:", verificationData);
 
-      // Create verification result record with real data
+      // Step 6: Create verification result record with real PDF signature data
       const verificationResultData = {
         document_id: document.id,
         signature_count: verificationData.signatureCount,
         certificate_validity: verificationData.certificateValidity,
         signer_name: verificationData.signerName,
-        signature_time: verificationData.verificationTime,
-        valid_until: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 1 year from now
+        signature_time: verificationData.signatureTime,
+        valid_until: new Date(verificationData.validUntil).toISOString().split('T')[0],
         document_integrity: verificationData.documentIntegrity,
         signature_location: verificationData.signatureLocation,
       };
       
       await createVerificationResult.mutateAsync(verificationResultData);
-      console.log("Verification result created with real data");
+      console.log("Verification result saved with real PDF signature data");
       
-      // Update document status to completed
+      // Step 7: Update document status to completed
       await updateDocument.mutateAsync({
         id: document.id,
         status: "COMPLETED"
       });
       console.log("Document status updated to COMPLETED");
       
-      // Set verification result for display with real data
+      // Step 8: Set verification result for display
       const result: VerificationResult = {
         fileName: selectedFile.name,
         signatureCount: verificationData.signatureCount,
         certificateValidity: verificationData.certificateValidity,
         signerName: verificationData.signerName,
-        signatureTime: new Date(verificationData.verificationTime).toLocaleString('id-ID'),
-        validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString('id-ID'),
+        signatureTime: new Date(verificationData.signatureTime).toLocaleString('id-ID'),
+        validUntil: new Date(verificationData.validUntil).toLocaleDateString('id-ID'),
         documentIntegrity: verificationData.documentIntegrity,
         signatureLocation: verificationData.signatureLocation || undefined,
         qrCode: qrCode,
@@ -154,14 +176,14 @@ const CekKeaslian = () => {
       
       toast({
         title: "Verifikasi Berhasil",
-        description: "Dokumen telah diverifikasi menggunakan sistem verifikasi digital yang sesungguhnya",
+        description: "Tanda tangan digital PDF telah diverifikasi menggunakan analisis PDF yang sesungguhnya",
       });
     } catch (error) {
-      console.error("Error during verification:", error);
+      console.error("Error during PDF signature verification:", error);
       setIsVerifying(false);
       toast({
         title: "Verifikasi Gagal",
-        description: `Terjadi kesalahan saat memverifikasi dokumen: ${error.message}`,
+        description: `Terjadi kesalahan saat memverifikasi tanda tangan PDF: ${error.message}`,
         variant: "destructive"
       });
     }
@@ -182,10 +204,10 @@ const CekKeaslian = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Upload className="w-5 h-5 mr-2" />
-                Upload Dokumen PDF
+                Upload Dokumen PDF untuk Verifikasi Tanda Tangan
               </CardTitle>
               <CardDescription>
-                Pilih file PDF yang ingin diverifikasi keasliannya menggunakan sistem verifikasi digital
+                Pilih file PDF yang ingin diverifikasi tanda tangan digitalnya menggunakan analisis PDF yang sesungguhnya
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -199,7 +221,7 @@ const CekKeaslian = () => {
                   className="cursor-pointer"
                 />
                 <p className="text-sm text-gray-500">
-                  Maksimal ukuran file: 10MB. Format yang didukung: PDF
+                  Maksimal ukuran file: 10MB. Format yang didukung: PDF dengan tanda tangan digital
                 </p>
               </div>
 
@@ -235,12 +257,12 @@ const CekKeaslian = () => {
                 {isVerifying ? (
                   <>
                     <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                    Memverifikasi Dokumen...
+                    Memverifikasi Tanda Tangan PDF...
                   </>
                 ) : (
                   <>
                     <CheckCircle className="w-4 h-4 mr-2" />
-                    Verifikasi Dokumen
+                    Verifikasi Tanda Tangan Digital
                   </>
                 )}
               </Button>
@@ -253,7 +275,7 @@ const CekKeaslian = () => {
               <CardHeader>
                 <CardTitle className="flex items-center text-green-600">
                   <CheckCircle className="w-5 h-5 mr-2" />
-                  Hasil Verifikasi Dokumen Digital
+                  Hasil Verifikasi Tanda Tangan Digital PDF
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -265,8 +287,8 @@ const CekKeaslian = () => {
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-gray-500">Jumlah Penandatangan</Label>
-                      <p className="text-lg font-medium">{verificationResult.signatureCount} Penandatangan</p>
+                      <Label className="text-sm font-medium text-gray-500">Jumlah Tanda Tangan</Label>
+                      <p className="text-lg font-medium">{verificationResult.signatureCount} Tanda Tangan Digital</p>
                     </div>
                     
                     <div>
@@ -277,7 +299,7 @@ const CekKeaslian = () => {
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-gray-500">Nama Penandatangan</Label>
+                      <Label className="text-sm font-medium text-gray-500">Penandatangan</Label>
                       <p className="text-lg font-medium">{verificationResult.signerName}</p>
                     </div>
                   </div>
@@ -294,7 +316,7 @@ const CekKeaslian = () => {
                     </div>
                     
                     <div>
-                      <Label className="text-sm font-medium text-gray-500">Status Integritas Dokumen</Label>
+                      <Label className="text-sm font-medium text-gray-500">Integritas Dokumen</Label>
                       <p className={`text-lg font-medium ${verificationResult.documentIntegrity === 'ASLI' ? 'text-green-600' : 'text-red-600'}`}>
                         {verificationResult.documentIntegrity}
                       </p>
@@ -334,7 +356,7 @@ const CekKeaslian = () => {
                         {verificationResult.ticketNumber}
                       </p>
                       <p className="text-sm text-gray-600 mt-1">
-                        Simpan nomor tiket ini untuk verifikasi cepat di masa mendatang
+                        Simpan nomor tiket ini untuk referensi verifikasi
                       </p>
                     </div>
                   </div>
