@@ -1,15 +1,12 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { FileText, Eye, Download, Trash2, AlertCircle } from "lucide-react";
+import { FileText } from "lucide-react";
 import { useDocuments, useUpdateDocument, useDeleteDocument } from "@/hooks/useDocuments";
 import { useToast } from "@/hooks/use-toast";
 import { logActivity } from "@/hooks/useAuditTrail";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import DocumentTable from "./DocumentTable";
+import DocumentViewDialog from "./DocumentViewDialog";
 
 const AdminDocuments = () => {
   const { data: documents = [], isLoading } = useDocuments();
@@ -20,21 +17,6 @@ const AdminDocuments = () => {
   const [viewingDocument, setViewingDocument] = useState<any>(null);
   const [isViewDialogOpen, setIsViewDialogOpen] = useState(false);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "COMPLETED":
-        return <Badge className="bg-green-100 text-green-800">Selesai</Badge>;
-      case "PROCESSING":
-        return <Badge className="bg-blue-100 text-blue-800">Diproses</Badge>;
-      case "PENDING":
-        return <Badge className="bg-yellow-100 text-yellow-800">Menunggu</Badge>;
-      case "REJECTED":
-        return <Badge variant="destructive">Ditolak</Badge>;
-      default:
-        return <Badge variant="outline">{status}</Badge>;
-    }
-  };
-
   const handleStatusChange = async (documentId: string, newStatus: string, currentFileName: string) => {
     try {
       setProcessingDocuments(prev => new Set(prev).add(documentId));
@@ -44,7 +26,6 @@ const AdminDocuments = () => {
         status: newStatus
       });
 
-      // Log the activity
       await logActivity(
         "UPDATE_DOCUMENT_STATUS",
         "DOCUMENT",
@@ -77,7 +58,6 @@ const AdminDocuments = () => {
       setViewingDocument(document);
       setIsViewDialogOpen(true);
       
-      // Log the activity
       await logActivity(
         "VIEW_DOCUMENT",
         "DOCUMENT",
@@ -96,9 +76,6 @@ const AdminDocuments = () => {
 
   const handleDownloadDocument = async (document: any) => {
     try {
-      // In a real implementation, you would download the file from storage
-      // For now, we'll just show a notification and log the activity
-      
       await logActivity(
         "DOWNLOAD_DOCUMENT",
         "DOCUMENT",
@@ -110,10 +87,6 @@ const AdminDocuments = () => {
         title: "Download",
         description: `Dokumen ${document.file_name} siap diunduh`,
       });
-
-      // Here you would implement actual file download logic
-      // For example: window.open(fileUrl, '_blank');
-      
     } catch (error) {
       console.error("Error downloading document:", error);
       toast({
@@ -132,7 +105,6 @@ const AdminDocuments = () => {
     try {
       await deleteDocument.mutateAsync(documentId);
 
-      // Log the activity
       await logActivity(
         "DELETE_DOCUMENT",
         "DOCUMENT",
@@ -171,170 +143,22 @@ const AdminDocuments = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Nama File</TableHead>
-                <TableHead>Ticket Number</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Tanggal Kirim</TableHead>
-                <TableHead>Aksi</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {documents.map((doc) => (
-                <TableRow key={doc.id}>
-                  <TableCell>
-                    <div>
-                      <div className="font-medium">{doc.file_name}</div>
-                      <div className="text-sm text-gray-500">
-                        {doc.subject && `Subjek: ${doc.subject}`}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <code className="bg-gray-100 px-2 py-1 rounded text-sm">
-                      {doc.ticket_number}
-                    </code>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      {getStatusBadge(doc.status)}
-                      {doc.status === "PENDING" && (
-                        <div className="flex space-x-1">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleStatusChange(doc.id, "PROCESSING", doc.file_name)}
-                            disabled={processingDocuments.has(doc.id)}
-                          >
-                            Proses
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleStatusChange(doc.id, "COMPLETED", doc.file_name)}
-                            disabled={processingDocuments.has(doc.id)}
-                          >
-                            Selesai
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            onClick={() => handleStatusChange(doc.id, "REJECTED", doc.file_name)}
-                            disabled={processingDocuments.has(doc.id)}
-                          >
-                            Tolak
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {new Date(doc.created_at).toLocaleDateString('id-ID')}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex space-x-2">
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        title="Lihat Detail"
-                        onClick={() => handleViewDocument(doc)}
-                      >
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        title="Unduh"
-                        onClick={() => handleDownloadDocument(doc)}
-                      >
-                        <Download className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
-                        title="Hapus"
-                        onClick={() => handleDeleteDocument(doc.id, doc.file_name)}
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <DocumentTable 
+            documents={documents}
+            processingDocuments={processingDocuments}
+            onStatusChange={handleStatusChange}
+            onViewDocument={handleViewDocument}
+            onDownloadDocument={handleDownloadDocument}
+            onDeleteDocument={handleDeleteDocument}
+          />
         </CardContent>
       </Card>
 
-      {/* View Document Dialog */}
-      <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>Detail Dokumen</DialogTitle>
-            <DialogDescription>
-              Informasi lengkap tentang dokumen yang dipilih
-            </DialogDescription>
-          </DialogHeader>
-          {viewingDocument && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Nama File</label>
-                  <p className="text-sm">{viewingDocument.file_name}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Ticket Number</label>
-                  <p className="text-sm font-mono bg-gray-100 px-2 py-1 rounded">
-                    {viewingDocument.ticket_number}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Status</label>
-                  <div className="mt-1">
-                    {getStatusBadge(viewingDocument.status)}
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Ukuran File</label>
-                  <p className="text-sm">{(viewingDocument.file_size / 1024).toFixed(2)} KB</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Subjek</label>
-                  <p className="text-sm">{viewingDocument.subject}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Penerima</label>
-                  <p className="text-sm">{viewingDocument.recipient}</p>
-                </div>
-                <div className="col-span-2">
-                  <label className="text-sm font-medium text-gray-500">Pesan</label>
-                  <p className="text-sm">{viewingDocument.message || 'Tidak ada pesan'}</p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Tanggal Dibuat</label>
-                  <p className="text-sm">
-                    {new Date(viewingDocument.created_at).toLocaleString('id-ID')}
-                  </p>
-                </div>
-                <div>
-                  <label className="text-sm font-medium text-gray-500">Terakhir Diupdate</label>
-                  <p className="text-sm">
-                    {new Date(viewingDocument.updated_at).toLocaleString('id-ID')}
-                  </p>
-                </div>
-              </div>
-              <div className="pt-4 border-t">
-                <label className="text-sm font-medium text-gray-500">QR Code</label>
-                <div className="mt-2 p-4 bg-gray-50 rounded">
-                  <p className="text-xs font-mono break-all">{viewingDocument.qr_code}</p>
-                </div>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <DocumentViewDialog 
+        isOpen={isViewDialogOpen}
+        onOpenChange={setIsViewDialogOpen}
+        document={viewingDocument}
+      />
     </div>
   );
 };
