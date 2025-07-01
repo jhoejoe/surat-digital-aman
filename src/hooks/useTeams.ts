@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -6,7 +5,8 @@ export const useTeams = () => {
   return useQuery({
     queryKey: ["teams"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get teams with team_members
+      const { data: teams, error: teamsError } = await supabase
         .from("teams")
         .select(`
           *,
@@ -14,18 +14,41 @@ export const useTeams = () => {
             id,
             role,
             joined_at,
-            user_id,
-            profiles:user_id (
-              id,
-              full_name,
-              email
-            )
+            user_id
           )
         `)
         .order("created_at", { ascending: false });
       
-      if (error) throw error;
-      return data;
+      if (teamsError) throw teamsError;
+      if (!teams) return [];
+
+      // Then enrich each team with profile data for team members
+      const teamsWithProfiles = await Promise.all(
+        teams.map(async (team) => {
+          if (!team.team_members || team.team_members.length === 0) {
+            return { ...team, team_members: [] };
+          }
+
+          const membersWithProfiles = await Promise.all(
+            team.team_members.map(async (member) => {
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("id, full_name, email")
+                .eq("id", member.user_id)
+                .single();
+
+              return {
+                ...member,
+                profiles: profile || { id: member.user_id, full_name: null, email: "" }
+              };
+            })
+          );
+
+          return { ...team, team_members: membersWithProfiles };
+        })
+      );
+
+      return teamsWithProfiles;
     },
   });
 };
@@ -85,21 +108,33 @@ export const useTeamMembers = (teamId: string) => {
   return useQuery({
     queryKey: ["team-members", teamId],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // Get team members first
+      const { data: members, error: membersError } = await supabase
         .from("team_members")
-        .select(`
-          *,
-          profiles:user_id (
-            id,
-            full_name,
-            email
-          )
-        `)
+        .select("*")
         .eq("team_id", teamId)
         .order("joined_at", { ascending: true });
       
-      if (error) throw error;
-      return data;
+      if (membersError) throw membersError;
+      if (!members) return [];
+
+      // Then get profile data for each member
+      const membersWithProfiles = await Promise.all(
+        members.map(async (member) => {
+          const { data: profile } = await supabase
+            .from("profiles")
+            .select("id, full_name, email")
+            .eq("id", member.user_id)
+            .single();
+
+          return {
+            ...member,
+            profiles: profile || { id: member.user_id, full_name: null, email: "" }
+          };
+        })
+      );
+
+      return membersWithProfiles;
     },
     enabled: !!teamId,
   });
