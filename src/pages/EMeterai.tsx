@@ -43,7 +43,7 @@ const EMeterai = () => {
   const companyLinks = [
     { title: "About Us", icon: Shield },
     { title: "Career", icon: FileText },
-    { title: "Life at Privy", icon: Shield },
+    { title: "Life at SuratAman", icon: Shield },
     { title: "FAQ", icon: FileText }
   ];
 
@@ -65,7 +65,7 @@ const EMeterai = () => {
     },
     {
       number: "2", 
-      title: "Make sure you have read and agreed to Privy's Terms of Service and click 'Continue!'"
+      title: "Make sure you have read and agreed to SuratAman's Terms of Service and click 'Continue!'"
     },
     {
       number: "3",
@@ -93,7 +93,7 @@ const EMeterai = () => {
                 <FileText className="h-5 w-5 text-white" />
               </div>
               <span className="text-xl font-bold text-gray-900">
-                PRIVY <span className="text-red-500">Business</span>
+                SuratAman <span className="text-red-500">Business</span>
               </span>
             </Link>
 
@@ -238,8 +238,8 @@ const EMeterai = () => {
                 <span className="text-red-500">e-Meterai</span> for Business
               </h1>
               <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-                e-Meterai is the new feature on Privy's Web App to attach electronic meterai issued by Peruri 
-                on digital documents. Get your e-Meterai at Privy's Enterprise account.
+                e-Meterai is the new feature on SuratAman's Web App to attach electronic meterai issued by Peruri 
+                on digital documents. Get your e-Meterai at SuratAman's Enterprise account.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
@@ -275,7 +275,7 @@ const EMeterai = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Combine Digital Signature and e-Meterai in one Privy's platform
+              Combine Digital Signature and e-Meterai in one SuratAman's platform
             </h2>
             <p className="text-lg text-gray-600 max-w-4xl mx-auto">
               Seamless electronic document signing with an e-Meterai for higher legality. Connect your company's 
@@ -335,7 +335,7 @@ const EMeterai = () => {
                     {index === 1 && (
                       <div className="mt-2 pl-4 border-l-4 border-red-200">
                         <p className="text-sm text-gray-500 italic">
-                          Make sure you have read and agreed to Privy's Terms of Service and click 'Continue!'
+                          Make sure you have read and agreed to SuratAman's Terms of Service and click 'Continue!'
                         </p>
                       </div>
                     )}
@@ -370,7 +370,7 @@ const EMeterai = () => {
                   <h3 className="text-xl font-bold text-gray-900">Easier and faster to use</h3>
                 </div>
                 <p className="text-gray-700 leading-relaxed">
-                  No more looking for a place to buy e-meterai. You also don't have to worry about the seal that you have torn or lost. Affix the e-meterai to your electronic documents with Privy.
+                  No more looking for a place to buy e-meterai. You also don't have to worry about the seal that you have torn or lost. Affix the e-meterai to your electronic documents with SuratAman.
                 </p>
               </CardContent>
             </Card>
