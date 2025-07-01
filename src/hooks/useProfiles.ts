@@ -8,7 +8,13 @@ export const useProfiles = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select(`
+          *,
+          teams:current_team_id (
+            id,
+            name
+          )
+        `)
         .order("created_at", { ascending: false });
       
       if (error) throw error;
@@ -26,6 +32,27 @@ export const useUpdateProfile = () => {
         .from("profiles")
         .update({ role, updated_at: new Date().toISOString() })
         .eq("id", id)
+        .select()
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profiles"] });
+    },
+  });
+};
+
+export const useUpdateCurrentTeam = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, teamId }: { userId: string; teamId: string | null }) => {
+      const { data, error } = await supabase
+        .from("profiles")
+        .update({ current_team_id: teamId, updated_at: new Date().toISOString() })
+        .eq("id", userId)
         .select()
         .single();
       

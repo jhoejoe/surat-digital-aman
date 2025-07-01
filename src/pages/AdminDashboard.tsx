@@ -9,6 +9,7 @@ import AdminUsers from "@/components/AdminUsers";
 import AdminCertificates from "@/components/AdminCertificates";
 import ApiIntegrations from "@/components/ApiIntegrations";
 import AuditTrail from "@/components/AuditTrail";
+import TeamManagement from "@/components/TeamManagement";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("analytics");
@@ -32,6 +33,15 @@ const AdminDashboard = () => {
             <div>
               <h2 className="text-2xl font-bold mb-4">Manajemen Pengguna</h2>
               <AdminUsers />
+            </div>
+          </div>
+        );
+      case "teams":
+        return (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-4">Manajemen Tim</h2>
+              <TeamManagement />
             </div>
           </div>
         );
@@ -64,10 +74,11 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="analytics">Analisa</TabsTrigger>
             <TabsTrigger value="documents">Dokumen</TabsTrigger>
             <TabsTrigger value="users">Pengguna</TabsTrigger>
+            <TabsTrigger value="teams">Tim</TabsTrigger>
             <TabsTrigger value="certificates">Sertifikat</TabsTrigger>
             <TabsTrigger value="integrations">API Integration</TabsTrigger>
             <TabsTrigger value="audit">Audit Trail</TabsTrigger>
