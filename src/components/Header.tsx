@@ -40,9 +40,6 @@ const Header = () => {
             <Link to="/blog" className="text-gray-700 hover:text-blue-600 transition-colors">
               Blog
             </Link>
-            <Link to="/business" className="text-gray-700 hover:text-blue-600 transition-colors">
-              Business
-            </Link>
             <Link to="/bantuan" className="text-gray-700 hover:text-blue-600 transition-colors">
               Bantuan
             </Link>
@@ -50,6 +47,14 @@ const Header = () => {
 
           {/* Auth Section */}
           <div className="flex items-center space-x-4">
+            <span className="text-blue-600 font-medium">Personal</span>
+            <Button
+              variant="outline"
+              onClick={() => navigate("/business")}
+              className="text-gray-700 hover:text-blue-600 border-gray-300"
+            >
+              Business
+            </Button>
             {user ? (
               <>
                 <span className="text-sm text-gray-600">
